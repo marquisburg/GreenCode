@@ -82,37 +82,37 @@ function Invoke-Case {
 $allCases = @(
   [pscustomobject]@{
     Name = "simple_valid"
-    Input = "simple.gc"
+    Input = "tests\simple.gc"
     ShouldSucceed = $true
     OutputMustMatch = @("function main\(\) -> int32", "return 0;")
   },
   [pscustomobject]@{
     Name = "hello_valid"
-    Input = "hello.gc"
+    Input = "tests\hello.gc"
     ShouldSucceed = $true
     OutputMustMatch = @("function main\(\) -> int32", "return 0;")
   },
   [pscustomobject]@{
     Name = "missing_semicolon"
-    Input = "test_return.gc"
+    Input = "tests\test_return.gc"
     ShouldSucceed = $false
     StderrMustMatch = @("Parse/codegen failed|Lexer failed")
   },
   [pscustomobject]@{
     Name = "return_without_value"
-    Input = "test_ret.gc"
+    Input = "tests\test_ret.gc"
     ShouldSucceed = $false
     StderrMustMatch = @("Parse/codegen failed|Lexer failed")
   },
   [pscustomobject]@{
     Name = "missing_paren"
-    Input = "test_paren.gc"
+    Input = "tests\test_paren.gc"
     ShouldSucceed = $false
     StderrMustMatch = @("Parse/codegen failed|Lexer failed")
   },
   [pscustomobject]@{
     Name = "minimal_invalid"
-    Input = "test_minimal.gc"
+    Input = "tests\test_minimal.gc"
     ShouldSucceed = $false
     StderrMustMatch = @("Parse/codegen failed|Lexer failed")
   }
