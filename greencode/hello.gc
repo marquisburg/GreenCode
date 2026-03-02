@@ -1,0 +1,4 @@
+// Test GreenCode input - Phase 1 just outputs trivial MethASM
+fn main() -> int {
+  return 0;
+}

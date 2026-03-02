@@ -1,0 +1,213 @@
+// GreenCode Compiler - Phase 2: Lexer integrated
+// Compiles GreenCode (.gc) to MethASM (.masm)
+// Requires: main(argc, argv) - link masm_entry.o and shell32 on Windows
+
+import "lexer";
+
+extern function fopen(path: cstring, mode: cstring) -> cstring = "fopen";
+extern function fclose(stream: cstring) -> int32 = "fclose";
+extern function fread(buf: cstring, size: int64, count: int64, stream: cstring) -> int64 = "fread";
+extern function fwrite(buf: cstring, size: int64, count: int64, stream: cstring) -> int64 = "fwrite";
+extern function malloc(size: int64) -> cstring = "malloc";
+extern function free(ptr: cstring) -> void = "free";
+extern function puts(msg: cstring) -> int32 = "puts";
+extern function sprintf(buf: cstring, fmt: cstring, value: int32) -> int32 = "sprintf";
+extern function strlen(s: cstring) -> int64 = "strlen";
+
+var default_output: string = "output.masm";
+var mode_r: string = "r";
+var mode_w: string = "w";
+var trivial_prog: string = "function main() -> int32 {\n  return 0;\n}\n";
+var masm_prefix: string = "function main() -> int32 {\n  return ";
+var masm_suffix: string = ";\n}\n";
+var fmt_dec: string = "%d";
+var msg_usage: string = "Usage: greencode <input.gc> [-o output.masm]\n";
+var msg_read_err: string = "Error: Could not read input file\n";
+var msg_lex_err: string = "Error: Lexer failed\n";
+var msg_parse_err: string = "Error: Parse/codegen failed\n";
+var msg_mem_err: string = "Error: Out of memory\n";
+var msg_write_err: string = "Error: Could not write output file\n";
+var msg_syntax: string = "Syntax: fn main() -> int { return <int>; }\n";
+
+function read_file(path: cstring) -> cstring {
+  var f: cstring = fopen(path, mode_r.chars);
+  if (f == 0) {
+    return 0;
+  }
+  // Seek to end to get size - we'll use fixed max for MVP (1 MiB)
+  var buf: cstring = malloc(1048576);
+  if (buf == 0) {
+    fclose(f);
+    return 0;
+  }
+  var n: int64 = fread(buf, 1, 1048575, f);
+  buf[n] = 0;
+  fclose(f);
+  return buf;
+}
+
+function write_trivial_masm(out_path: cstring) -> int32 {
+  var f: cstring = fopen(out_path, mode_w.chars);
+  if (f == 0) {
+    return 0;
+  }
+  var len: int64 = trivial_prog.length;
+  var written: int64 = fwrite(trivial_prog.chars, 1, len, f);
+  fclose(f);
+  if (written > 0) {
+    return 1;
+  }
+  return 0;
+}
+
+function token_is(tokens: Token*, idx: int32, count: int32, t: int32) -> int32 {
+  if (idx < 0 || idx >= count) {
+    return 0;
+  }
+  if (tokens[idx].type == t) {
+    return 1;
+  }
+  return 0;
+}
+
+function parse_uint(source: cstring, start: int32, len: int32) -> int32 {
+  var i: int32 = 0;
+  var v: int32 = 0;
+  while (i < len) {
+    var c: int32 = source[start + i];
+    if (c < 48 || c > 57) {
+      return -1;
+    }
+    v = v * 10 + (c - 48);
+    i = i + 1;
+  }
+  return v;
+}
+
+function find_return_number(source: cstring) -> int32 {
+  var i: int32 = 0;
+  while (source[i] != 0) {
+    if (source[i] == 114) { // r
+      if (source[i + 1] == 101) {
+        if (source[i + 2] == 116) {
+          if (source[i + 3] == 117) {
+            if (source[i + 4] == 114) {
+              if (source[i + 5] == 110) {
+                var j: int32 = i + 6;
+                while (source[j] == 32 || source[j] == 9 || source[j] == 13 || source[j] == 10) {
+                  j = j + 1;
+                }
+                var start: int32 = j;
+                while (source[j] >= 48 && source[j] <= 57) {
+                  j = j + 1;
+                }
+                if (j == start) {
+                  return -1;
+                }
+                while (source[j] == 32 || source[j] == 9 || source[j] == 13 || source[j] == 10) {
+                  j = j + 1;
+                }
+                if (source[j] != 59) { // ';'
+                  return -1;
+                }
+                return parse_uint(source, start, j - start);
+              }
+            }
+          }
+        }
+      }
+    }
+    i = i + 1;
+  }
+  return -1;
+}
+
+function write_return_masm(out_path: cstring, retv: int32) -> int32 {
+  var f: cstring = fopen(out_path, mode_w.chars);
+  if (f == 0) {
+    return 0;
+  }
+
+  var numbuf: cstring = malloc(32);
+  if (numbuf == 0) {
+    fclose(f);
+    return 0;
+  }
+  sprintf(numbuf, fmt_dec.chars, retv);
+  var nlen: int64 = strlen(numbuf);
+
+  var w1: int64 = fwrite(masm_prefix.chars, 1, masm_prefix.length, f);
+  var w2: int64 = fwrite(numbuf, 1, nlen, f);
+  var w3: int64 = fwrite(masm_suffix.chars, 1, masm_suffix.length, f);
+
+  free(numbuf);
+  fclose(f);
+
+  if (w1 <= 0 || w2 <= 0 || w3 <= 0) {
+    return 0;
+  }
+  return 1;
+}
+
+function main(argc: int32, argv: cstring*) -> int32 {
+  if (argc < 2) {
+    puts(msg_usage.chars);
+    return 1;
+  }
+  var input_path: cstring = argv[1];
+  var output_path: cstring = default_output.chars;
+  var i: int32 = 2;
+  while (i < argc) {
+    var arg: cstring = argv[i];
+    if (arg[0] == 45) {
+      if (arg[1] == 111) {
+        if (arg[2] == 0) {
+          i = i + 1;
+          if (i < argc) {
+            output_path = argv[i];
+          }
+        }
+      }
+    }
+    i = i + 1;
+  }
+  // -o requires next arg; if -o is last, we keep default_output
+  var source: cstring = read_file(input_path);
+  if (source == 0) {
+    puts(msg_read_err.chars);
+    return 1;
+  }
+  var token_buf: cstring = malloc(40960);
+  if (token_buf == 0) {
+    puts(msg_mem_err.chars);
+    free(source);
+    return 1;
+  }
+  var token_count: int32 = lex_all(source, (Token*)token_buf, 2048);
+  if (token_count < 0) {
+    puts(msg_lex_err.chars);
+    free(source);
+    free(token_buf);
+    return 1;
+  }
+  var retv: int32 = find_return_number(source);
+  var parsed_ok: int32 = 0;
+  if (retv >= 0) {
+    parsed_ok = 1;
+  }
+  if (parsed_ok == 0) {
+    puts(msg_parse_err.chars);
+    puts(msg_syntax.chars);
+    free(source);
+    free(token_buf);
+    return 1;
+  }
+  var ok: int32 = write_return_masm(output_path, retv);
+  free(source);
+  free(token_buf);
+  if (ok == 0) {
+    puts(msg_write_err.chars);
+    return 1;
+  }
+  return 0;
+}
