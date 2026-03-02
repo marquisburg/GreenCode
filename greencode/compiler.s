@@ -6,7 +6,7 @@ bits 64
 section .text
 ; Code section
 
-; First pass: processing 92 declarations
+; First pass: processing 96 declarations
 ; Declaration 0 type: 5 (AST_INLINE_ASM = 21)
 ; Declaration 1 type: 3 (AST_INLINE_ASM = 21)
 ; Declaration 2 type: 3 (AST_INLINE_ASM = 21)
@@ -99,6 +99,10 @@ section .text
 ; Declaration 89 type: 4 (AST_INLINE_ASM = 21)
 ; Declaration 90 type: 4 (AST_INLINE_ASM = 21)
 ; Declaration 91 type: 4 (AST_INLINE_ASM = 21)
+; Declaration 92 type: 4 (AST_INLINE_ASM = 21)
+; Declaration 93 type: 4 (AST_INLINE_ASM = 21)
+; Declaration 94 type: 4 (AST_INLINE_ASM = 21)
+; Declaration 95 type: 4 (AST_INLINE_ASM = 21)
 
 section .text
     ; Struct declaration: Token
@@ -1309,12 +1313,12 @@ global lex_all
 lex_all:
     push rbp        ; Save old base pointer
     mov rbp, rsp  ; Set new base pointer
-    mov rax, 9648
+    mov rax, 9808
     extern ___chkstk_ms
     sub rsp, 32
     call ___chkstk_ms
     add rsp, 32
-    sub rsp, rax    ; Allocate 9648 bytes on stack (probed)
+    sub rsp, rax    ; Allocate 9808 bytes on stack (probed)
     ; Registering 3 function parameters
     mov [rbp - 8], rcx  ; Home param 'source'
     ; Parameter 'source' arrived in register rcx
@@ -2002,9 +2006,9 @@ ir_errdefer_end_167:
     jmp ir_if_end_152
 ir_if_next_153:
 ir_if_end_152:
-    test r15, r15
-    jnz ir_nonnull_171
-ir_trap_null_170:
+    cmp qword [rbp - 16], 0
+    jnz ir_nonnull_169
+ir_trap_null_168:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -2021,36 +2025,25 @@ ir_trap_null_170:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_171:
-    mov rax, 1
+ir_nonnull_169:
+    mov rax, 8
     mov r10, rax
-    ; Load variable: pos
-    movsxd rax, r13d      ; From register (signed int32)
+    ; Load variable: count
+    movsxd rax, dword [rbp - 72]  ; From stack [rbp - 72]
     imul rax, r10
     mov [rbp - 536], rax
     mov rax, [rbp - 536]
     mov r10, rax
-    ; Load variable: source
-    mov rax, r15      ; From register
+    ; Load variable: tokens
+    mov rax, qword [rbp - 16]  ; From stack [rbp - 16]
     add rax, r10
     mov [rbp - 544], rax
     mov rax, [rbp - 544]
-    movzx rax, byte [rax]
-    mov [rbp - 552], rax
-    mov rax, 47
-    mov r10, rax
-    mov rax, [rbp - 552]
-    cmp rax, r10
-    jne ir_if_next_169
-    mov rax, 1
-    mov r10, rax
-    ; Load variable: pos
-    movsxd rax, r13d      ; From register (signed int32)
-    add rax, r10
-    mov [rbp - 568], rax
-    test r15, r15
-    jnz ir_nonnull_175
-ir_trap_null_174:
+    ; Store to variable: tok
+    mov r12, rax       ; To register
+    test r12, r12
+    jnz ir_nonnull_171
+ir_trap_null_170:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -2067,52 +2060,87 @@ ir_trap_null_174:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_175:
+ir_nonnull_171:
+    mov rax, 12
+    mov r10, rax
+    ; Load variable: tok
+    mov rax, r12      ; From register
+    add rax, r10
+    mov [rbp - 552], rax
+    ; Load variable: line
+    movsxd rax, dword [rbp - 68]  ; From stack [rbp - 68]
+    mov rcx, rax
+    mov rax, [rbp - 552]
+    mov dword [rax], ecx
+    test r12, r12
+    jnz ir_nonnull_173
+ir_trap_null_172:
+    ; IR call: puts (1 args)
+    sub rsp, 32
+    ; String literal (37 bytes)
+    lea rax, [rel Lstr_struct60]  ; Load string struct address
+    mov rcx, rax
+    call puts
+    add rsp, 32
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    ; IR call: exit (1 args)
+    sub rsp, 32
     mov rax, 1
+    mov rcx, rax
+    call exit
+    add rsp, 32
+    ; Unknown return type - assuming integer
+ir_nonnull_173:
+    mov rax, 16
     mov r10, rax
-    mov rax, [rbp - 568]
-    imul rax, r10
-    mov [rbp - 576], rax
-    mov rax, [rbp - 576]
-    mov r10, rax
-    ; Load variable: source
-    mov rax, r15      ; From register
+    ; Load variable: tok
+    mov rax, r12      ; From register
     add rax, r10
-    mov [rbp - 584], rax
-    mov rax, [rbp - 584]
-    movzx rax, byte [rax]
-    mov [rbp - 592], rax
-    mov rax, 47
-    mov r10, rax
-    mov rax, [rbp - 592]
-    cmp rax, r10
-    jne ir_if_next_173
-    mov rax, 2
-    mov r10, rax
-    ; Load variable: pos
-    movsxd rax, r13d      ; From register (signed int32)
-    add rax, r10
-    mov [rbp - 608], rax
-    mov rax, [rbp - 608]
-    ; Store to variable: pos
-    mov r13d, eax       ; To register (int32/uint32)
-    mov rax, 2
-    mov r10, rax
+    mov [rbp - 568], rax
     ; Load variable: col
     movsxd rax, r14d      ; From register (signed int32)
+    mov rcx, rax
+    mov rax, [rbp - 568]
+    mov dword [rax], ecx
+    test r12, r12
+    jnz ir_nonnull_175
+ir_trap_null_174:
+    ; IR call: puts (1 args)
+    sub rsp, 32
+    ; String literal (37 bytes)
+    lea rax, [rel Lstr_struct62]  ; Load string struct address
+    mov rcx, rax
+    call puts
+    add rsp, 32
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    ; IR call: exit (1 args)
+    sub rsp, 32
+    mov rax, 1
+    mov rcx, rax
+    call exit
+    add rsp, 32
+    ; Unknown return type - assuming integer
+ir_nonnull_175:
+    mov rax, 4
+    mov r10, rax
+    ; Load variable: tok
+    mov rax, r12      ; From register
     add rax, r10
-    mov [rbp - 616], rax
-    mov rax, [rbp - 616]
-    ; Store to variable: col
-    mov r14d, eax       ; To register (int32/uint32)
-ir_while_176:
+    mov [rbp - 584], rax
+    ; Load variable: pos
+    movsxd rax, r13d      ; From register (signed int32)
+    mov rcx, rax
+    mov rax, [rbp - 584]
+    mov dword [rax], ecx
     test r15, r15
     jnz ir_nonnull_179
 ir_trap_null_178:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
-    lea rax, [rel Lstr_struct60]  ; Load string struct address
+    lea rax, [rel Lstr_struct64]  ; Load string struct address
     mov rcx, rax
     call puts
     add rsp, 32
@@ -2131,151 +2159,30 @@ ir_nonnull_179:
     ; Load variable: pos
     movsxd rax, r13d      ; From register (signed int32)
     imul rax, r10
-    mov [rbp - 624], rax
-    mov rax, [rbp - 624]
+    mov [rbp - 600], rax
+    mov rax, [rbp - 600]
     mov r10, rax
     ; Load variable: source
     mov rax, r15      ; From register
     add rax, r10
-    mov [rbp - 632], rax
-    mov rax, [rbp - 632]
+    mov [rbp - 608], rax
+    mov rax, [rbp - 608]
     movzx rax, byte [rax]
-    mov [rbp - 640], rax
-    mov rax, 0
+    mov [rbp - 616], rax
+    mov rax, 47
     mov r10, rax
-    mov rax, [rbp - 640]
+    mov rax, [rbp - 616]
     cmp rax, r10
-    je ir_while_end_177
+    jne ir_if_next_177
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: pos
+    movsxd rax, r13d      ; From register (signed int32)
+    add rax, r10
+    mov [rbp - 632], rax
     test r15, r15
     jnz ir_nonnull_183
 ir_trap_null_182:
-    ; IR call: puts (1 args)
-    sub rsp, 32
-    ; String literal (37 bytes)
-    lea rax, [rel Lstr_struct62]  ; Load string struct address
-    mov rcx, rax
-    call puts
-    add rsp, 32
-    ; Integer/pointer return value in rax
-    ; 32-bit return value already in eax
-    ; IR call: exit (1 args)
-    sub rsp, 32
-    mov rax, 1
-    mov rcx, rax
-    call exit
-    add rsp, 32
-    ; Unknown return type - assuming integer
-ir_nonnull_183:
-    mov rax, 1
-    mov r10, rax
-    ; Load variable: pos
-    movsxd rax, r13d      ; From register (signed int32)
-    imul rax, r10
-    mov [rbp - 656], rax
-    mov rax, [rbp - 656]
-    mov r10, rax
-    ; Load variable: source
-    mov rax, r15      ; From register
-    add rax, r10
-    mov [rbp - 664], rax
-    mov rax, [rbp - 664]
-    movzx rax, byte [rax]
-    mov [rbp - 672], rax
-    mov rax, 10
-    mov r10, rax
-    mov rax, [rbp - 672]
-    cmp rax, r10
-    jne ir_if_next_181
-    mov rax, 1
-    mov r10, rax
-    ; Load variable: pos
-    movsxd rax, r13d      ; From register (signed int32)
-    add rax, r10
-    mov [rbp - 688], rax
-    mov rax, [rbp - 688]
-    ; Store to variable: pos
-    mov r13d, eax       ; To register (int32/uint32)
-    mov rax, 1
-    mov r10, rax
-    ; Load variable: line
-    movsxd rax, dword [rbp - 68]  ; From stack [rbp - 68]
-    add rax, r10
-    mov [rbp - 696], rax
-    mov rax, [rbp - 696]
-    ; Store to variable: line
-    mov dword [rbp - 68], eax  ; To stack [rbp - 68]
-    mov rax, 1
-    ; Store to variable: col
-    mov r14d, eax       ; To register (int32/uint32)
-    jmp ir_while_end_177
-    jmp ir_if_end_180
-ir_if_next_181:
-ir_if_end_180:
-    mov rax, 1
-    mov r10, rax
-    ; Load variable: pos
-    movsxd rax, r13d      ; From register (signed int32)
-    add rax, r10
-    mov [rbp - 704], rax
-    mov rax, [rbp - 704]
-    ; Store to variable: pos
-    mov r13d, eax       ; To register (int32/uint32)
-    mov rax, 1
-    mov r10, rax
-    ; Load variable: col
-    movsxd rax, r14d      ; From register (signed int32)
-    add rax, r10
-    mov [rbp - 712], rax
-    mov rax, [rbp - 712]
-    ; Store to variable: col
-    mov r14d, eax       ; To register (int32/uint32)
-    jmp ir_while_176
-ir_while_end_177:
-    jmp ir_while_128
-    jmp ir_if_end_172
-ir_if_next_173:
-ir_if_end_172:
-    jmp ir_if_end_168
-ir_if_next_169:
-ir_if_end_168:
-    cmp qword [rbp - 16], 0
-    jnz ir_nonnull_185
-ir_trap_null_184:
-    ; IR call: puts (1 args)
-    sub rsp, 32
-    ; String literal (37 bytes)
-    lea rax, [rel Lstr_struct64]  ; Load string struct address
-    mov rcx, rax
-    call puts
-    add rsp, 32
-    ; Integer/pointer return value in rax
-    ; 32-bit return value already in eax
-    ; IR call: exit (1 args)
-    sub rsp, 32
-    mov rax, 1
-    mov rcx, rax
-    call exit
-    add rsp, 32
-    ; Unknown return type - assuming integer
-ir_nonnull_185:
-    mov rax, 8
-    mov r10, rax
-    ; Load variable: count
-    movsxd rax, dword [rbp - 72]  ; From stack [rbp - 72]
-    imul rax, r10
-    mov [rbp - 720], rax
-    mov rax, [rbp - 720]
-    mov r10, rax
-    ; Load variable: tokens
-    mov rax, qword [rbp - 16]  ; From stack [rbp - 16]
-    add rax, r10
-    mov [rbp - 728], rax
-    mov rax, [rbp - 728]
-    ; Store to variable: tok
-    mov r12, rax       ; To register
-    test r12, r12
-    jnz ir_nonnull_187
-ir_trap_null_186:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -2292,21 +2199,48 @@ ir_trap_null_186:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_187:
-    mov rax, 12
+ir_nonnull_183:
+    mov rax, 1
     mov r10, rax
-    ; Load variable: tok
-    mov rax, r12      ; From register
+    mov rax, [rbp - 632]
+    imul rax, r10
+    mov [rbp - 640], rax
+    mov rax, [rbp - 640]
+    mov r10, rax
+    ; Load variable: source
+    mov rax, r15      ; From register
     add rax, r10
-    mov [rbp - 736], rax
-    ; Load variable: line
-    movsxd rax, dword [rbp - 68]  ; From stack [rbp - 68]
-    mov rcx, rax
-    mov rax, [rbp - 736]
-    mov dword [rax], ecx
-    test r12, r12
-    jnz ir_nonnull_189
-ir_trap_null_188:
+    mov [rbp - 648], rax
+    mov rax, [rbp - 648]
+    movzx rax, byte [rax]
+    mov [rbp - 656], rax
+    mov rax, 47
+    mov r10, rax
+    mov rax, [rbp - 656]
+    cmp rax, r10
+    jne ir_if_next_181
+    mov rax, 2
+    mov r10, rax
+    ; Load variable: pos
+    movsxd rax, r13d      ; From register (signed int32)
+    add rax, r10
+    mov [rbp - 672], rax
+    mov rax, [rbp - 672]
+    ; Store to variable: pos
+    mov r13d, eax       ; To register (int32/uint32)
+    mov rax, 2
+    mov r10, rax
+    ; Load variable: col
+    movsxd rax, r14d      ; From register (signed int32)
+    add rax, r10
+    mov [rbp - 680], rax
+    mov rax, [rbp - 680]
+    ; Store to variable: col
+    mov r14d, eax       ; To register (int32/uint32)
+ir_while_184:
+    test r15, r15
+    jnz ir_nonnull_187
+ir_trap_null_186:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -2323,19 +2257,28 @@ ir_trap_null_188:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_189:
-    mov rax, 16
+ir_nonnull_187:
+    mov rax, 1
     mov r10, rax
-    ; Load variable: tok
-    mov rax, r12      ; From register
+    ; Load variable: pos
+    movsxd rax, r13d      ; From register (signed int32)
+    imul rax, r10
+    mov [rbp - 688], rax
+    mov rax, [rbp - 688]
+    mov r10, rax
+    ; Load variable: source
+    mov rax, r15      ; From register
     add rax, r10
-    mov [rbp - 752], rax
-    ; Load variable: col
-    movsxd rax, r14d      ; From register (signed int32)
-    mov rcx, rax
-    mov rax, [rbp - 752]
-    mov dword [rax], ecx
-    test r12, r12
+    mov [rbp - 696], rax
+    mov rax, [rbp - 696]
+    movzx rax, byte [rax]
+    mov [rbp - 704], rax
+    mov rax, 0
+    mov r10, rax
+    mov rax, [rbp - 704]
+    cmp rax, r10
+    je ir_while_end_185
+    test r15, r15
     jnz ir_nonnull_191
 ir_trap_null_190:
     ; IR call: puts (1 args)
@@ -2355,18 +2298,76 @@ ir_trap_null_190:
     add rsp, 32
     ; Unknown return type - assuming integer
 ir_nonnull_191:
-    mov rax, 4
+    mov rax, 1
     mov r10, rax
-    ; Load variable: tok
-    mov rax, r12      ; From register
-    add rax, r10
-    mov [rbp - 768], rax
     ; Load variable: pos
     movsxd rax, r13d      ; From register (signed int32)
-    mov rcx, rax
+    imul rax, r10
+    mov [rbp - 720], rax
+    mov rax, [rbp - 720]
+    mov r10, rax
+    ; Load variable: source
+    mov rax, r15      ; From register
+    add rax, r10
+    mov [rbp - 728], rax
+    mov rax, [rbp - 728]
+    movzx rax, byte [rax]
+    mov [rbp - 736], rax
+    mov rax, 10
+    mov r10, rax
+    mov rax, [rbp - 736]
+    cmp rax, r10
+    jne ir_if_next_189
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: pos
+    movsxd rax, r13d      ; From register (signed int32)
+    add rax, r10
+    mov [rbp - 752], rax
+    mov rax, [rbp - 752]
+    ; Store to variable: pos
+    mov r13d, eax       ; To register (int32/uint32)
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: line
+    movsxd rax, dword [rbp - 68]  ; From stack [rbp - 68]
+    add rax, r10
+    mov [rbp - 760], rax
+    mov rax, [rbp - 760]
+    ; Store to variable: line
+    mov dword [rbp - 68], eax  ; To stack [rbp - 68]
+    mov rax, 1
+    ; Store to variable: col
+    mov r14d, eax       ; To register (int32/uint32)
+    jmp ir_while_end_185
+    jmp ir_if_end_188
+ir_if_next_189:
+ir_if_end_188:
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: pos
+    movsxd rax, r13d      ; From register (signed int32)
+    add rax, r10
+    mov [rbp - 768], rax
     mov rax, [rbp - 768]
-    mov dword [rax], ecx
-    test r15, r15
+    ; Store to variable: pos
+    mov r13d, eax       ; To register (int32/uint32)
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: col
+    movsxd rax, r14d      ; From register (signed int32)
+    add rax, r10
+    mov [rbp - 776], rax
+    mov rax, [rbp - 776]
+    ; Store to variable: col
+    mov r14d, eax       ; To register (int32/uint32)
+    jmp ir_while_184
+ir_while_end_185:
+    jmp ir_while_128
+    jmp ir_if_end_180
+ir_if_next_181:
+ir_if_end_180:
+    test r12, r12
     jnz ir_nonnull_193
 ir_trap_null_192:
     ; IR call: puts (1 args)
@@ -2386,29 +2387,20 @@ ir_trap_null_192:
     add rsp, 32
     ; Unknown return type - assuming integer
 ir_nonnull_193:
-    mov rax, 1
+    mov rax, 0
     mov r10, rax
-    ; Load variable: pos
-    movsxd rax, r13d      ; From register (signed int32)
-    imul rax, r10
-    mov [rbp - 784], rax
-    mov rax, [rbp - 784]
-    mov r10, rax
-    ; Load variable: source
-    mov rax, r15      ; From register
+    ; Load variable: tok
+    mov rax, r12      ; From register
     add rax, r10
-    mov [rbp - 792], rax
-    mov rax, [rbp - 792]
-    movzx rax, byte [rax]
-    mov [rbp - 800], rax
-    mov rax, [rbp - 800]
-    ; Store to variable: c
-    mov ebx, eax       ; To register (int32/uint32)
-    cmp ebx, 40
-    jne ir_if_next_195
+    mov [rbp - 784], rax
+    ; Load variable: TOKEN_SLASH
+    movsxd rax, dword [rel TOKEN_SLASH]  ; From global memory
+    mov rcx, rax
+    mov rax, [rbp - 784]
+    mov dword [rax], ecx
     test r12, r12
-    jnz ir_nonnull_197
-ir_trap_null_196:
+    jnz ir_nonnull_195
+ir_trap_null_194:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -2425,21 +2417,51 @@ ir_trap_null_196:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_197:
-    mov rax, 0
+ir_nonnull_195:
+    mov rax, 8
     mov r10, rax
     ; Load variable: tok
     mov rax, r12      ; From register
     add rax, r10
-    mov [rbp - 816], rax
-    ; Load variable: TOKEN_LPAREN
-    movsxd rax, dword [rel TOKEN_LPAREN]  ; From global memory
+    mov [rbp - 800], rax
+    mov rax, 1
     mov rcx, rax
-    mov rax, [rbp - 816]
+    mov rax, [rbp - 800]
     mov dword [rax], ecx
-    test r12, r12
-    jnz ir_nonnull_199
-ir_trap_null_198:
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: pos
+    movsxd rax, r13d      ; From register (signed int32)
+    add rax, r10
+    mov [rbp - 816], rax
+    mov rax, [rbp - 816]
+    ; Store to variable: pos
+    mov r13d, eax       ; To register (int32/uint32)
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: col
+    movsxd rax, r14d      ; From register (signed int32)
+    add rax, r10
+    mov [rbp - 824], rax
+    mov rax, [rbp - 824]
+    ; Store to variable: col
+    mov r14d, eax       ; To register (int32/uint32)
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: count
+    movsxd rax, dword [rbp - 72]  ; From stack [rbp - 72]
+    add rax, r10
+    mov [rbp - 832], rax
+    mov rax, [rbp - 832]
+    ; Store to variable: count
+    mov dword [rbp - 72], eax  ; To stack [rbp - 72]
+    jmp ir_while_128
+    jmp ir_if_end_176
+ir_if_next_177:
+ir_if_end_176:
+    test r15, r15
+    jnz ir_nonnull_197
+ir_trap_null_196:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -2456,42 +2478,30 @@ ir_trap_null_198:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_199:
-    mov rax, 8
-    mov r10, rax
-    ; Load variable: tok
-    mov rax, r12      ; From register
-    add rax, r10
-    mov [rbp - 832], rax
-    mov rax, 1
-    mov rcx, rax
-    mov rax, [rbp - 832]
-    mov dword [rax], ecx
+ir_nonnull_197:
     mov rax, 1
     mov r10, rax
     ; Load variable: pos
     movsxd rax, r13d      ; From register (signed int32)
+    imul rax, r10
+    mov [rbp - 840], rax
+    mov rax, [rbp - 840]
+    mov r10, rax
+    ; Load variable: source
+    mov rax, r15      ; From register
     add rax, r10
     mov [rbp - 848], rax
     mov rax, [rbp - 848]
-    ; Store to variable: pos
-    mov r13d, eax       ; To register (int32/uint32)
-    mov rax, 1
-    mov r10, rax
-    ; Load variable: col
-    movsxd rax, r14d      ; From register (signed int32)
-    add rax, r10
+    movzx rax, byte [rax]
     mov [rbp - 856], rax
     mov rax, [rbp - 856]
-    ; Store to variable: col
-    mov r14d, eax       ; To register (int32/uint32)
-    jmp ir_if_end_194
-ir_if_next_195:
-    cmp ebx, 41
-    jne ir_if_next_200
+    ; Store to variable: c
+    mov ebx, eax       ; To register (int32/uint32)
+    cmp ebx, 40
+    jne ir_if_next_199
     test r12, r12
-    jnz ir_nonnull_202
-ir_trap_null_201:
+    jnz ir_nonnull_201
+ir_trap_null_200:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -2508,21 +2518,21 @@ ir_trap_null_201:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_202:
+ir_nonnull_201:
     mov rax, 0
     mov r10, rax
     ; Load variable: tok
     mov rax, r12      ; From register
     add rax, r10
     mov [rbp - 872], rax
-    ; Load variable: TOKEN_RPAREN
-    movsxd rax, dword [rel TOKEN_RPAREN]  ; From global memory
+    ; Load variable: TOKEN_LPAREN
+    movsxd rax, dword [rel TOKEN_LPAREN]  ; From global memory
     mov rcx, rax
     mov rax, [rbp - 872]
     mov dword [rax], ecx
     test r12, r12
-    jnz ir_nonnull_204
-ir_trap_null_203:
+    jnz ir_nonnull_203
+ir_trap_null_202:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -2539,7 +2549,7 @@ ir_trap_null_203:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_204:
+ir_nonnull_203:
     mov rax, 8
     mov r10, rax
     ; Load variable: tok
@@ -2568,13 +2578,13 @@ ir_nonnull_204:
     mov rax, [rbp - 912]
     ; Store to variable: col
     mov r14d, eax       ; To register (int32/uint32)
-    jmp ir_if_end_194
-ir_if_next_200:
-    cmp ebx, 123
-    jne ir_if_next_205
+    jmp ir_if_end_198
+ir_if_next_199:
+    cmp ebx, 41
+    jne ir_if_next_204
     test r12, r12
-    jnz ir_nonnull_207
-ir_trap_null_206:
+    jnz ir_nonnull_206
+ir_trap_null_205:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -2591,21 +2601,21 @@ ir_trap_null_206:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_207:
+ir_nonnull_206:
     mov rax, 0
     mov r10, rax
     ; Load variable: tok
     mov rax, r12      ; From register
     add rax, r10
     mov [rbp - 928], rax
-    ; Load variable: TOKEN_LBRACE
-    movsxd rax, dword [rel TOKEN_LBRACE]  ; From global memory
+    ; Load variable: TOKEN_RPAREN
+    movsxd rax, dword [rel TOKEN_RPAREN]  ; From global memory
     mov rcx, rax
     mov rax, [rbp - 928]
     mov dword [rax], ecx
     test r12, r12
-    jnz ir_nonnull_209
-ir_trap_null_208:
+    jnz ir_nonnull_208
+ir_trap_null_207:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -2622,7 +2632,7 @@ ir_trap_null_208:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_209:
+ir_nonnull_208:
     mov rax, 8
     mov r10, rax
     ; Load variable: tok
@@ -2651,13 +2661,13 @@ ir_nonnull_209:
     mov rax, [rbp - 968]
     ; Store to variable: col
     mov r14d, eax       ; To register (int32/uint32)
-    jmp ir_if_end_194
-ir_if_next_205:
-    cmp ebx, 125
-    jne ir_if_next_210
+    jmp ir_if_end_198
+ir_if_next_204:
+    cmp ebx, 123
+    jne ir_if_next_209
     test r12, r12
-    jnz ir_nonnull_212
-ir_trap_null_211:
+    jnz ir_nonnull_211
+ir_trap_null_210:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -2674,21 +2684,21 @@ ir_trap_null_211:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_212:
+ir_nonnull_211:
     mov rax, 0
     mov r10, rax
     ; Load variable: tok
     mov rax, r12      ; From register
     add rax, r10
     mov [rbp - 984], rax
-    ; Load variable: TOKEN_RBRACE
-    movsxd rax, dword [rel TOKEN_RBRACE]  ; From global memory
+    ; Load variable: TOKEN_LBRACE
+    movsxd rax, dword [rel TOKEN_LBRACE]  ; From global memory
     mov rcx, rax
     mov rax, [rbp - 984]
     mov dword [rax], ecx
     test r12, r12
-    jnz ir_nonnull_214
-ir_trap_null_213:
+    jnz ir_nonnull_213
+ir_trap_null_212:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -2705,7 +2715,7 @@ ir_trap_null_213:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_214:
+ir_nonnull_213:
     mov rax, 8
     mov r10, rax
     ; Load variable: tok
@@ -2734,13 +2744,13 @@ ir_nonnull_214:
     mov rax, [rbp - 1024]
     ; Store to variable: col
     mov r14d, eax       ; To register (int32/uint32)
-    jmp ir_if_end_194
-ir_if_next_210:
-    cmp ebx, 59
-    jne ir_if_next_215
+    jmp ir_if_end_198
+ir_if_next_209:
+    cmp ebx, 125
+    jne ir_if_next_214
     test r12, r12
-    jnz ir_nonnull_217
-ir_trap_null_216:
+    jnz ir_nonnull_216
+ir_trap_null_215:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -2757,21 +2767,21 @@ ir_trap_null_216:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_217:
+ir_nonnull_216:
     mov rax, 0
     mov r10, rax
     ; Load variable: tok
     mov rax, r12      ; From register
     add rax, r10
     mov [rbp - 1040], rax
-    ; Load variable: TOKEN_SEMI
-    movsxd rax, dword [rel TOKEN_SEMI]  ; From global memory
+    ; Load variable: TOKEN_RBRACE
+    movsxd rax, dword [rel TOKEN_RBRACE]  ; From global memory
     mov rcx, rax
     mov rax, [rbp - 1040]
     mov dword [rax], ecx
     test r12, r12
-    jnz ir_nonnull_219
-ir_trap_null_218:
+    jnz ir_nonnull_218
+ir_trap_null_217:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -2788,7 +2798,7 @@ ir_trap_null_218:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_219:
+ir_nonnull_218:
     mov rax, 8
     mov r10, rax
     ; Load variable: tok
@@ -2817,13 +2827,13 @@ ir_nonnull_219:
     mov rax, [rbp - 1080]
     ; Store to variable: col
     mov r14d, eax       ; To register (int32/uint32)
-    jmp ir_if_end_194
-ir_if_next_215:
-    cmp ebx, 58
-    jne ir_if_next_220
+    jmp ir_if_end_198
+ir_if_next_214:
+    cmp ebx, 59
+    jne ir_if_next_219
     test r12, r12
-    jnz ir_nonnull_222
-ir_trap_null_221:
+    jnz ir_nonnull_221
+ir_trap_null_220:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -2840,21 +2850,21 @@ ir_trap_null_221:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_222:
+ir_nonnull_221:
     mov rax, 0
     mov r10, rax
     ; Load variable: tok
     mov rax, r12      ; From register
     add rax, r10
     mov [rbp - 1096], rax
-    ; Load variable: TOKEN_COLON
-    movsxd rax, dword [rel TOKEN_COLON]  ; From global memory
+    ; Load variable: TOKEN_SEMI
+    movsxd rax, dword [rel TOKEN_SEMI]  ; From global memory
     mov rcx, rax
     mov rax, [rbp - 1096]
     mov dword [rax], ecx
     test r12, r12
-    jnz ir_nonnull_224
-ir_trap_null_223:
+    jnz ir_nonnull_223
+ir_trap_null_222:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -2871,7 +2881,7 @@ ir_trap_null_223:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_224:
+ir_nonnull_223:
     mov rax, 8
     mov r10, rax
     ; Load variable: tok
@@ -2900,13 +2910,13 @@ ir_nonnull_224:
     mov rax, [rbp - 1136]
     ; Store to variable: col
     mov r14d, eax       ; To register (int32/uint32)
-    jmp ir_if_end_194
-ir_if_next_220:
-    cmp ebx, 44
-    jne ir_if_next_225
+    jmp ir_if_end_198
+ir_if_next_219:
+    cmp ebx, 58
+    jne ir_if_next_224
     test r12, r12
-    jnz ir_nonnull_227
-ir_trap_null_226:
+    jnz ir_nonnull_226
+ir_trap_null_225:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -2923,21 +2933,21 @@ ir_trap_null_226:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_227:
+ir_nonnull_226:
     mov rax, 0
     mov r10, rax
     ; Load variable: tok
     mov rax, r12      ; From register
     add rax, r10
     mov [rbp - 1152], rax
-    ; Load variable: TOKEN_COMMA
-    movsxd rax, dword [rel TOKEN_COMMA]  ; From global memory
+    ; Load variable: TOKEN_COLON
+    movsxd rax, dword [rel TOKEN_COLON]  ; From global memory
     mov rcx, rax
     mov rax, [rbp - 1152]
     mov dword [rax], ecx
     test r12, r12
-    jnz ir_nonnull_229
-ir_trap_null_228:
+    jnz ir_nonnull_228
+ir_trap_null_227:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -2954,7 +2964,7 @@ ir_trap_null_228:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_229:
+ir_nonnull_228:
     mov rax, 8
     mov r10, rax
     ; Load variable: tok
@@ -2983,13 +2993,13 @@ ir_nonnull_229:
     mov rax, [rbp - 1192]
     ; Store to variable: col
     mov r14d, eax       ; To register (int32/uint32)
-    jmp ir_if_end_194
-ir_if_next_225:
-    cmp ebx, 43
-    jne ir_if_next_230
+    jmp ir_if_end_198
+ir_if_next_224:
+    cmp ebx, 44
+    jne ir_if_next_229
     test r12, r12
-    jnz ir_nonnull_232
-ir_trap_null_231:
+    jnz ir_nonnull_231
+ir_trap_null_230:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -3006,21 +3016,21 @@ ir_trap_null_231:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_232:
+ir_nonnull_231:
     mov rax, 0
     mov r10, rax
     ; Load variable: tok
     mov rax, r12      ; From register
     add rax, r10
     mov [rbp - 1208], rax
-    ; Load variable: TOKEN_PLUS
-    movsxd rax, dword [rel TOKEN_PLUS]  ; From global memory
+    ; Load variable: TOKEN_COMMA
+    movsxd rax, dword [rel TOKEN_COMMA]  ; From global memory
     mov rcx, rax
     mov rax, [rbp - 1208]
     mov dword [rax], ecx
     test r12, r12
-    jnz ir_nonnull_234
-ir_trap_null_233:
+    jnz ir_nonnull_233
+ir_trap_null_232:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -3037,7 +3047,7 @@ ir_trap_null_233:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_234:
+ir_nonnull_233:
     mov rax, 8
     mov r10, rax
     ; Load variable: tok
@@ -3066,19 +3076,13 @@ ir_nonnull_234:
     mov rax, [rbp - 1248]
     ; Store to variable: col
     mov r14d, eax       ; To register (int32/uint32)
-    jmp ir_if_end_194
-ir_if_next_230:
-    cmp ebx, 45
-    jne ir_if_next_235
-    mov rax, 1
-    mov r10, rax
-    ; Load variable: pos
-    movsxd rax, r13d      ; From register (signed int32)
-    add rax, r10
-    mov [rbp - 1264], rax
-    test r15, r15
-    jnz ir_nonnull_239
-ir_trap_null_238:
+    jmp ir_if_end_198
+ir_if_next_229:
+    cmp ebx, 43
+    jne ir_if_next_234
+    test r12, r12
+    jnz ir_nonnull_236
+ir_trap_null_235:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -3095,29 +3099,21 @@ ir_trap_null_238:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_239:
-    mov rax, 1
+ir_nonnull_236:
+    mov rax, 0
     mov r10, rax
-    mov rax, [rbp - 1264]
-    imul rax, r10
-    mov [rbp - 1272], rax
-    mov rax, [rbp - 1272]
-    mov r10, rax
-    ; Load variable: source
-    mov rax, r15      ; From register
+    ; Load variable: tok
+    mov rax, r12      ; From register
     add rax, r10
-    mov [rbp - 1280], rax
-    mov rax, [rbp - 1280]
-    movzx rax, byte [rax]
-    mov [rbp - 1288], rax
-    mov rax, 62
-    mov r10, rax
-    mov rax, [rbp - 1288]
-    cmp rax, r10
-    jne ir_if_next_237
+    mov [rbp - 1264], rax
+    ; Load variable: TOKEN_PLUS
+    movsxd rax, dword [rel TOKEN_PLUS]  ; From global memory
+    mov rcx, rax
+    mov rax, [rbp - 1264]
+    mov dword [rax], ecx
     test r12, r12
-    jnz ir_nonnull_241
-ir_trap_null_240:
+    jnz ir_nonnull_238
+ir_trap_null_237:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -3134,19 +3130,46 @@ ir_trap_null_240:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_241:
-    mov rax, 0
+ir_nonnull_238:
+    mov rax, 8
     mov r10, rax
     ; Load variable: tok
     mov rax, r12      ; From register
     add rax, r10
-    mov [rbp - 1304], rax
-    ; Load variable: TOKEN_ARROW
-    movsxd rax, dword [rel TOKEN_ARROW]  ; From global memory
+    mov [rbp - 1280], rax
+    mov rax, 1
     mov rcx, rax
-    mov rax, [rbp - 1304]
+    mov rax, [rbp - 1280]
     mov dword [rax], ecx
-    test r12, r12
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: pos
+    movsxd rax, r13d      ; From register (signed int32)
+    add rax, r10
+    mov [rbp - 1296], rax
+    mov rax, [rbp - 1296]
+    ; Store to variable: pos
+    mov r13d, eax       ; To register (int32/uint32)
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: col
+    movsxd rax, r14d      ; From register (signed int32)
+    add rax, r10
+    mov [rbp - 1304], rax
+    mov rax, [rbp - 1304]
+    ; Store to variable: col
+    mov r14d, eax       ; To register (int32/uint32)
+    jmp ir_if_end_198
+ir_if_next_234:
+    cmp ebx, 45
+    jne ir_if_next_239
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: pos
+    movsxd rax, r13d      ; From register (signed int32)
+    add rax, r10
+    mov [rbp - 1320], rax
+    test r15, r15
     jnz ir_nonnull_243
 ir_trap_null_242:
     ; IR call: puts (1 args)
@@ -3166,36 +3189,25 @@ ir_trap_null_242:
     add rsp, 32
     ; Unknown return type - assuming integer
 ir_nonnull_243:
-    mov rax, 8
+    mov rax, 1
     mov r10, rax
-    ; Load variable: tok
-    mov rax, r12      ; From register
-    add rax, r10
-    mov [rbp - 1320], rax
-    mov rax, 2
-    mov rcx, rax
     mov rax, [rbp - 1320]
-    mov dword [rax], ecx
-    mov rax, 2
+    imul rax, r10
+    mov [rbp - 1328], rax
+    mov rax, [rbp - 1328]
     mov r10, rax
-    ; Load variable: pos
-    movsxd rax, r13d      ; From register (signed int32)
+    ; Load variable: source
+    mov rax, r15      ; From register
     add rax, r10
     mov [rbp - 1336], rax
     mov rax, [rbp - 1336]
-    ; Store to variable: pos
-    mov r13d, eax       ; To register (int32/uint32)
-    mov rax, 2
-    mov r10, rax
-    ; Load variable: col
-    movsxd rax, r14d      ; From register (signed int32)
-    add rax, r10
+    movzx rax, byte [rax]
     mov [rbp - 1344], rax
+    mov rax, 62
+    mov r10, rax
     mov rax, [rbp - 1344]
-    ; Store to variable: col
-    mov r14d, eax       ; To register (int32/uint32)
-    jmp ir_if_end_236
-ir_if_next_237:
+    cmp rax, r10
+    jne ir_if_next_241
     test r12, r12
     jnz ir_nonnull_245
 ir_trap_null_244:
@@ -3221,11 +3233,11 @@ ir_nonnull_245:
     ; Load variable: tok
     mov rax, r12      ; From register
     add rax, r10
-    mov [rbp - 1352], rax
-    ; Load variable: TOKEN_MINUS
-    movsxd rax, dword [rel TOKEN_MINUS]  ; From global memory
+    mov [rbp - 1360], rax
+    ; Load variable: TOKEN_ARROW
+    movsxd rax, dword [rel TOKEN_ARROW]  ; From global memory
     mov rcx, rax
-    mov rax, [rbp - 1352]
+    mov rax, [rbp - 1360]
     mov dword [rax], ecx
     test r12, r12
     jnz ir_nonnull_247
@@ -3252,37 +3264,34 @@ ir_nonnull_247:
     ; Load variable: tok
     mov rax, r12      ; From register
     add rax, r10
-    mov [rbp - 1368], rax
-    mov rax, 1
+    mov [rbp - 1376], rax
+    mov rax, 2
     mov rcx, rax
-    mov rax, [rbp - 1368]
+    mov rax, [rbp - 1376]
     mov dword [rax], ecx
-    mov rax, 1
+    mov rax, 2
     mov r10, rax
     ; Load variable: pos
     movsxd rax, r13d      ; From register (signed int32)
     add rax, r10
-    mov [rbp - 1384], rax
-    mov rax, [rbp - 1384]
+    mov [rbp - 1392], rax
+    mov rax, [rbp - 1392]
     ; Store to variable: pos
     mov r13d, eax       ; To register (int32/uint32)
-    mov rax, 1
+    mov rax, 2
     mov r10, rax
     ; Load variable: col
     movsxd rax, r14d      ; From register (signed int32)
     add rax, r10
-    mov [rbp - 1392], rax
-    mov rax, [rbp - 1392]
+    mov [rbp - 1400], rax
+    mov rax, [rbp - 1400]
     ; Store to variable: col
     mov r14d, eax       ; To register (int32/uint32)
-ir_if_end_236:
-    jmp ir_if_end_194
-ir_if_next_235:
-    cmp ebx, 42
-    jne ir_if_next_248
+    jmp ir_if_end_240
+ir_if_next_241:
     test r12, r12
-    jnz ir_nonnull_250
-ir_trap_null_249:
+    jnz ir_nonnull_249
+ir_trap_null_248:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -3299,21 +3308,21 @@ ir_trap_null_249:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_250:
+ir_nonnull_249:
     mov rax, 0
     mov r10, rax
     ; Load variable: tok
     mov rax, r12      ; From register
     add rax, r10
     mov [rbp - 1408], rax
-    ; Load variable: TOKEN_STAR
-    movsxd rax, dword [rel TOKEN_STAR]  ; From global memory
+    ; Load variable: TOKEN_MINUS
+    movsxd rax, dword [rel TOKEN_MINUS]  ; From global memory
     mov rcx, rax
     mov rax, [rbp - 1408]
     mov dword [rax], ecx
     test r12, r12
-    jnz ir_nonnull_252
-ir_trap_null_251:
+    jnz ir_nonnull_251
+ir_trap_null_250:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -3330,7 +3339,7 @@ ir_trap_null_251:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_252:
+ir_nonnull_251:
     mov rax, 8
     mov r10, rax
     ; Load variable: tok
@@ -3359,13 +3368,14 @@ ir_nonnull_252:
     mov rax, [rbp - 1448]
     ; Store to variable: col
     mov r14d, eax       ; To register (int32/uint32)
-    jmp ir_if_end_194
-ir_if_next_248:
-    cmp ebx, 37
-    jne ir_if_next_253
+ir_if_end_240:
+    jmp ir_if_end_198
+ir_if_next_239:
+    cmp ebx, 42
+    jne ir_if_next_252
     test r12, r12
-    jnz ir_nonnull_255
-ir_trap_null_254:
+    jnz ir_nonnull_254
+ir_trap_null_253:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -3382,21 +3392,21 @@ ir_trap_null_254:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_255:
+ir_nonnull_254:
     mov rax, 0
     mov r10, rax
     ; Load variable: tok
     mov rax, r12      ; From register
     add rax, r10
     mov [rbp - 1464], rax
-    ; Load variable: TOKEN_PERCENT
-    movsxd rax, dword [rel TOKEN_PERCENT]  ; From global memory
+    ; Load variable: TOKEN_STAR
+    movsxd rax, dword [rel TOKEN_STAR]  ; From global memory
     mov rcx, rax
     mov rax, [rbp - 1464]
     mov dword [rax], ecx
     test r12, r12
-    jnz ir_nonnull_257
-ir_trap_null_256:
+    jnz ir_nonnull_256
+ir_trap_null_255:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -3413,7 +3423,7 @@ ir_trap_null_256:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_257:
+ir_nonnull_256:
     mov rax, 8
     mov r10, rax
     ; Load variable: tok
@@ -3442,19 +3452,13 @@ ir_nonnull_257:
     mov rax, [rbp - 1504]
     ; Store to variable: col
     mov r14d, eax       ; To register (int32/uint32)
-    jmp ir_if_end_194
-ir_if_next_253:
-    cmp ebx, 61
-    jne ir_if_next_258
-    mov rax, 1
-    mov r10, rax
-    ; Load variable: pos
-    movsxd rax, r13d      ; From register (signed int32)
-    add rax, r10
-    mov [rbp - 1520], rax
-    test r15, r15
-    jnz ir_nonnull_262
-ir_trap_null_261:
+    jmp ir_if_end_198
+ir_if_next_252:
+    cmp ebx, 37
+    jne ir_if_next_257
+    test r12, r12
+    jnz ir_nonnull_259
+ir_trap_null_258:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -3471,29 +3475,21 @@ ir_trap_null_261:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_262:
-    mov rax, 1
+ir_nonnull_259:
+    mov rax, 0
     mov r10, rax
-    mov rax, [rbp - 1520]
-    imul rax, r10
-    mov [rbp - 1528], rax
-    mov rax, [rbp - 1528]
-    mov r10, rax
-    ; Load variable: source
-    mov rax, r15      ; From register
+    ; Load variable: tok
+    mov rax, r12      ; From register
     add rax, r10
-    mov [rbp - 1536], rax
-    mov rax, [rbp - 1536]
-    movzx rax, byte [rax]
-    mov [rbp - 1544], rax
-    mov rax, 61
-    mov r10, rax
-    mov rax, [rbp - 1544]
-    cmp rax, r10
-    jne ir_if_next_260
+    mov [rbp - 1520], rax
+    ; Load variable: TOKEN_PERCENT
+    movsxd rax, dword [rel TOKEN_PERCENT]  ; From global memory
+    mov rcx, rax
+    mov rax, [rbp - 1520]
+    mov dword [rax], ecx
     test r12, r12
-    jnz ir_nonnull_264
-ir_trap_null_263:
+    jnz ir_nonnull_261
+ir_trap_null_260:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -3510,19 +3506,46 @@ ir_trap_null_263:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_264:
-    mov rax, 0
+ir_nonnull_261:
+    mov rax, 8
     mov r10, rax
     ; Load variable: tok
     mov rax, r12      ; From register
     add rax, r10
-    mov [rbp - 1560], rax
-    ; Load variable: TOKEN_EQEQ
-    movsxd rax, dword [rel TOKEN_EQEQ]  ; From global memory
+    mov [rbp - 1536], rax
+    mov rax, 1
     mov rcx, rax
-    mov rax, [rbp - 1560]
+    mov rax, [rbp - 1536]
     mov dword [rax], ecx
-    test r12, r12
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: pos
+    movsxd rax, r13d      ; From register (signed int32)
+    add rax, r10
+    mov [rbp - 1552], rax
+    mov rax, [rbp - 1552]
+    ; Store to variable: pos
+    mov r13d, eax       ; To register (int32/uint32)
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: col
+    movsxd rax, r14d      ; From register (signed int32)
+    add rax, r10
+    mov [rbp - 1560], rax
+    mov rax, [rbp - 1560]
+    ; Store to variable: col
+    mov r14d, eax       ; To register (int32/uint32)
+    jmp ir_if_end_198
+ir_if_next_257:
+    cmp ebx, 61
+    jne ir_if_next_262
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: pos
+    movsxd rax, r13d      ; From register (signed int32)
+    add rax, r10
+    mov [rbp - 1576], rax
+    test r15, r15
     jnz ir_nonnull_266
 ir_trap_null_265:
     ; IR call: puts (1 args)
@@ -3542,36 +3565,25 @@ ir_trap_null_265:
     add rsp, 32
     ; Unknown return type - assuming integer
 ir_nonnull_266:
-    mov rax, 8
+    mov rax, 1
     mov r10, rax
-    ; Load variable: tok
-    mov rax, r12      ; From register
-    add rax, r10
-    mov [rbp - 1576], rax
-    mov rax, 2
-    mov rcx, rax
     mov rax, [rbp - 1576]
-    mov dword [rax], ecx
-    mov rax, 2
+    imul rax, r10
+    mov [rbp - 1584], rax
+    mov rax, [rbp - 1584]
     mov r10, rax
-    ; Load variable: pos
-    movsxd rax, r13d      ; From register (signed int32)
+    ; Load variable: source
+    mov rax, r15      ; From register
     add rax, r10
     mov [rbp - 1592], rax
     mov rax, [rbp - 1592]
-    ; Store to variable: pos
-    mov r13d, eax       ; To register (int32/uint32)
-    mov rax, 2
-    mov r10, rax
-    ; Load variable: col
-    movsxd rax, r14d      ; From register (signed int32)
-    add rax, r10
+    movzx rax, byte [rax]
     mov [rbp - 1600], rax
+    mov rax, 61
+    mov r10, rax
     mov rax, [rbp - 1600]
-    ; Store to variable: col
-    mov r14d, eax       ; To register (int32/uint32)
-    jmp ir_if_end_259
-ir_if_next_260:
+    cmp rax, r10
+    jne ir_if_next_264
     test r12, r12
     jnz ir_nonnull_268
 ir_trap_null_267:
@@ -3597,11 +3609,11 @@ ir_nonnull_268:
     ; Load variable: tok
     mov rax, r12      ; From register
     add rax, r10
-    mov [rbp - 1608], rax
-    ; Load variable: TOKEN_EQ
-    movsxd rax, dword [rel TOKEN_EQ]  ; From global memory
+    mov [rbp - 1616], rax
+    ; Load variable: TOKEN_EQEQ
+    movsxd rax, dword [rel TOKEN_EQEQ]  ; From global memory
     mov rcx, rax
-    mov rax, [rbp - 1608]
+    mov rax, [rbp - 1616]
     mov dword [rax], ecx
     test r12, r12
     jnz ir_nonnull_270
@@ -3628,43 +3640,34 @@ ir_nonnull_270:
     ; Load variable: tok
     mov rax, r12      ; From register
     add rax, r10
-    mov [rbp - 1624], rax
-    mov rax, 1
+    mov [rbp - 1632], rax
+    mov rax, 2
     mov rcx, rax
-    mov rax, [rbp - 1624]
+    mov rax, [rbp - 1632]
     mov dword [rax], ecx
-    mov rax, 1
+    mov rax, 2
     mov r10, rax
     ; Load variable: pos
     movsxd rax, r13d      ; From register (signed int32)
     add rax, r10
-    mov [rbp - 1640], rax
-    mov rax, [rbp - 1640]
+    mov [rbp - 1648], rax
+    mov rax, [rbp - 1648]
     ; Store to variable: pos
     mov r13d, eax       ; To register (int32/uint32)
-    mov rax, 1
+    mov rax, 2
     mov r10, rax
     ; Load variable: col
     movsxd rax, r14d      ; From register (signed int32)
     add rax, r10
-    mov [rbp - 1648], rax
-    mov rax, [rbp - 1648]
+    mov [rbp - 1656], rax
+    mov rax, [rbp - 1656]
     ; Store to variable: col
     mov r14d, eax       ; To register (int32/uint32)
-ir_if_end_259:
-    jmp ir_if_end_194
-ir_if_next_258:
-    cmp ebx, 33
-    jne ir_if_next_271
-    mov rax, 1
-    mov r10, rax
-    ; Load variable: pos
-    movsxd rax, r13d      ; From register (signed int32)
-    add rax, r10
-    mov [rbp - 1664], rax
-    test r15, r15
-    jnz ir_nonnull_275
-ir_trap_null_274:
+    jmp ir_if_end_263
+ir_if_next_264:
+    test r12, r12
+    jnz ir_nonnull_272
+ir_trap_null_271:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -3681,29 +3684,21 @@ ir_trap_null_274:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_275:
-    mov rax, 1
+ir_nonnull_272:
+    mov rax, 0
     mov r10, rax
-    mov rax, [rbp - 1664]
-    imul rax, r10
-    mov [rbp - 1672], rax
-    mov rax, [rbp - 1672]
-    mov r10, rax
-    ; Load variable: source
-    mov rax, r15      ; From register
+    ; Load variable: tok
+    mov rax, r12      ; From register
     add rax, r10
-    mov [rbp - 1680], rax
-    mov rax, [rbp - 1680]
-    movzx rax, byte [rax]
-    mov [rbp - 1688], rax
-    mov rax, 61
-    mov r10, rax
-    mov rax, [rbp - 1688]
-    cmp rax, r10
-    jne ir_if_next_273
+    mov [rbp - 1664], rax
+    ; Load variable: TOKEN_EQ
+    movsxd rax, dword [rel TOKEN_EQ]  ; From global memory
+    mov rcx, rax
+    mov rax, [rbp - 1664]
+    mov dword [rax], ecx
     test r12, r12
-    jnz ir_nonnull_277
-ir_trap_null_276:
+    jnz ir_nonnull_274
+ir_trap_null_273:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -3720,19 +3715,47 @@ ir_trap_null_276:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_277:
-    mov rax, 0
+ir_nonnull_274:
+    mov rax, 8
     mov r10, rax
     ; Load variable: tok
     mov rax, r12      ; From register
     add rax, r10
-    mov [rbp - 1704], rax
-    ; Load variable: TOKEN_NE
-    movsxd rax, dword [rel TOKEN_NE]  ; From global memory
+    mov [rbp - 1680], rax
+    mov rax, 1
     mov rcx, rax
-    mov rax, [rbp - 1704]
+    mov rax, [rbp - 1680]
     mov dword [rax], ecx
-    test r12, r12
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: pos
+    movsxd rax, r13d      ; From register (signed int32)
+    add rax, r10
+    mov [rbp - 1696], rax
+    mov rax, [rbp - 1696]
+    ; Store to variable: pos
+    mov r13d, eax       ; To register (int32/uint32)
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: col
+    movsxd rax, r14d      ; From register (signed int32)
+    add rax, r10
+    mov [rbp - 1704], rax
+    mov rax, [rbp - 1704]
+    ; Store to variable: col
+    mov r14d, eax       ; To register (int32/uint32)
+ir_if_end_263:
+    jmp ir_if_end_198
+ir_if_next_262:
+    cmp ebx, 33
+    jne ir_if_next_275
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: pos
+    movsxd rax, r13d      ; From register (signed int32)
+    add rax, r10
+    mov [rbp - 1720], rax
+    test r15, r15
     jnz ir_nonnull_279
 ir_trap_null_278:
     ; IR call: puts (1 args)
@@ -3752,36 +3775,25 @@ ir_trap_null_278:
     add rsp, 32
     ; Unknown return type - assuming integer
 ir_nonnull_279:
-    mov rax, 8
+    mov rax, 1
     mov r10, rax
-    ; Load variable: tok
-    mov rax, r12      ; From register
-    add rax, r10
-    mov [rbp - 1720], rax
-    mov rax, 2
-    mov rcx, rax
     mov rax, [rbp - 1720]
-    mov dword [rax], ecx
-    mov rax, 2
+    imul rax, r10
+    mov [rbp - 1728], rax
+    mov rax, [rbp - 1728]
     mov r10, rax
-    ; Load variable: pos
-    movsxd rax, r13d      ; From register (signed int32)
+    ; Load variable: source
+    mov rax, r15      ; From register
     add rax, r10
     mov [rbp - 1736], rax
     mov rax, [rbp - 1736]
-    ; Store to variable: pos
-    mov r13d, eax       ; To register (int32/uint32)
-    mov rax, 2
-    mov r10, rax
-    ; Load variable: col
-    movsxd rax, r14d      ; From register (signed int32)
-    add rax, r10
+    movzx rax, byte [rax]
     mov [rbp - 1744], rax
+    mov rax, 61
+    mov r10, rax
     mov rax, [rbp - 1744]
-    ; Store to variable: col
-    mov r14d, eax       ; To register (int32/uint32)
-    jmp ir_if_end_272
-ir_if_next_273:
+    cmp rax, r10
+    jne ir_if_next_277
     test r12, r12
     jnz ir_nonnull_281
 ir_trap_null_280:
@@ -3807,11 +3819,11 @@ ir_nonnull_281:
     ; Load variable: tok
     mov rax, r12      ; From register
     add rax, r10
-    mov [rbp - 1752], rax
-    ; Load variable: TOKEN_NOT
-    movsxd rax, dword [rel TOKEN_NOT]  ; From global memory
+    mov [rbp - 1760], rax
+    ; Load variable: TOKEN_NE
+    movsxd rax, dword [rel TOKEN_NE]  ; From global memory
     mov rcx, rax
-    mov rax, [rbp - 1752]
+    mov rax, [rbp - 1760]
     mov dword [rax], ecx
     test r12, r12
     jnz ir_nonnull_283
@@ -3838,43 +3850,34 @@ ir_nonnull_283:
     ; Load variable: tok
     mov rax, r12      ; From register
     add rax, r10
-    mov [rbp - 1768], rax
-    mov rax, 1
+    mov [rbp - 1776], rax
+    mov rax, 2
     mov rcx, rax
-    mov rax, [rbp - 1768]
+    mov rax, [rbp - 1776]
     mov dword [rax], ecx
-    mov rax, 1
+    mov rax, 2
     mov r10, rax
     ; Load variable: pos
     movsxd rax, r13d      ; From register (signed int32)
     add rax, r10
-    mov [rbp - 1784], rax
-    mov rax, [rbp - 1784]
+    mov [rbp - 1792], rax
+    mov rax, [rbp - 1792]
     ; Store to variable: pos
     mov r13d, eax       ; To register (int32/uint32)
-    mov rax, 1
+    mov rax, 2
     mov r10, rax
     ; Load variable: col
     movsxd rax, r14d      ; From register (signed int32)
     add rax, r10
-    mov [rbp - 1792], rax
-    mov rax, [rbp - 1792]
+    mov [rbp - 1800], rax
+    mov rax, [rbp - 1800]
     ; Store to variable: col
     mov r14d, eax       ; To register (int32/uint32)
-ir_if_end_272:
-    jmp ir_if_end_194
-ir_if_next_271:
-    cmp ebx, 60
-    jne ir_if_next_284
-    mov rax, 1
-    mov r10, rax
-    ; Load variable: pos
-    movsxd rax, r13d      ; From register (signed int32)
-    add rax, r10
-    mov [rbp - 1808], rax
-    test r15, r15
-    jnz ir_nonnull_288
-ir_trap_null_287:
+    jmp ir_if_end_276
+ir_if_next_277:
+    test r12, r12
+    jnz ir_nonnull_285
+ir_trap_null_284:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -3891,29 +3894,21 @@ ir_trap_null_287:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_288:
-    mov rax, 1
+ir_nonnull_285:
+    mov rax, 0
     mov r10, rax
-    mov rax, [rbp - 1808]
-    imul rax, r10
-    mov [rbp - 1816], rax
-    mov rax, [rbp - 1816]
-    mov r10, rax
-    ; Load variable: source
-    mov rax, r15      ; From register
+    ; Load variable: tok
+    mov rax, r12      ; From register
     add rax, r10
-    mov [rbp - 1824], rax
-    mov rax, [rbp - 1824]
-    movzx rax, byte [rax]
-    mov [rbp - 1832], rax
-    mov rax, 61
-    mov r10, rax
-    mov rax, [rbp - 1832]
-    cmp rax, r10
-    jne ir_if_next_286
+    mov [rbp - 1808], rax
+    ; Load variable: TOKEN_NOT
+    movsxd rax, dword [rel TOKEN_NOT]  ; From global memory
+    mov rcx, rax
+    mov rax, [rbp - 1808]
+    mov dword [rax], ecx
     test r12, r12
-    jnz ir_nonnull_290
-ir_trap_null_289:
+    jnz ir_nonnull_287
+ir_trap_null_286:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -3930,19 +3925,47 @@ ir_trap_null_289:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_290:
-    mov rax, 0
+ir_nonnull_287:
+    mov rax, 8
     mov r10, rax
     ; Load variable: tok
     mov rax, r12      ; From register
     add rax, r10
-    mov [rbp - 1848], rax
-    ; Load variable: TOKEN_LE
-    movsxd rax, dword [rel TOKEN_LE]  ; From global memory
+    mov [rbp - 1824], rax
+    mov rax, 1
     mov rcx, rax
-    mov rax, [rbp - 1848]
+    mov rax, [rbp - 1824]
     mov dword [rax], ecx
-    test r12, r12
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: pos
+    movsxd rax, r13d      ; From register (signed int32)
+    add rax, r10
+    mov [rbp - 1840], rax
+    mov rax, [rbp - 1840]
+    ; Store to variable: pos
+    mov r13d, eax       ; To register (int32/uint32)
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: col
+    movsxd rax, r14d      ; From register (signed int32)
+    add rax, r10
+    mov [rbp - 1848], rax
+    mov rax, [rbp - 1848]
+    ; Store to variable: col
+    mov r14d, eax       ; To register (int32/uint32)
+ir_if_end_276:
+    jmp ir_if_end_198
+ir_if_next_275:
+    cmp ebx, 60
+    jne ir_if_next_288
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: pos
+    movsxd rax, r13d      ; From register (signed int32)
+    add rax, r10
+    mov [rbp - 1864], rax
+    test r15, r15
     jnz ir_nonnull_292
 ir_trap_null_291:
     ; IR call: puts (1 args)
@@ -3962,36 +3985,25 @@ ir_trap_null_291:
     add rsp, 32
     ; Unknown return type - assuming integer
 ir_nonnull_292:
-    mov rax, 8
+    mov rax, 1
     mov r10, rax
-    ; Load variable: tok
-    mov rax, r12      ; From register
-    add rax, r10
-    mov [rbp - 1864], rax
-    mov rax, 2
-    mov rcx, rax
     mov rax, [rbp - 1864]
-    mov dword [rax], ecx
-    mov rax, 2
+    imul rax, r10
+    mov [rbp - 1872], rax
+    mov rax, [rbp - 1872]
     mov r10, rax
-    ; Load variable: pos
-    movsxd rax, r13d      ; From register (signed int32)
+    ; Load variable: source
+    mov rax, r15      ; From register
     add rax, r10
     mov [rbp - 1880], rax
     mov rax, [rbp - 1880]
-    ; Store to variable: pos
-    mov r13d, eax       ; To register (int32/uint32)
-    mov rax, 2
-    mov r10, rax
-    ; Load variable: col
-    movsxd rax, r14d      ; From register (signed int32)
-    add rax, r10
+    movzx rax, byte [rax]
     mov [rbp - 1888], rax
+    mov rax, 61
+    mov r10, rax
     mov rax, [rbp - 1888]
-    ; Store to variable: col
-    mov r14d, eax       ; To register (int32/uint32)
-    jmp ir_if_end_285
-ir_if_next_286:
+    cmp rax, r10
+    jne ir_if_next_290
     test r12, r12
     jnz ir_nonnull_294
 ir_trap_null_293:
@@ -4017,11 +4029,11 @@ ir_nonnull_294:
     ; Load variable: tok
     mov rax, r12      ; From register
     add rax, r10
-    mov [rbp - 1896], rax
-    ; Load variable: TOKEN_LT
-    movsxd rax, dword [rel TOKEN_LT]  ; From global memory
+    mov [rbp - 1904], rax
+    ; Load variable: TOKEN_LE
+    movsxd rax, dword [rel TOKEN_LE]  ; From global memory
     mov rcx, rax
-    mov rax, [rbp - 1896]
+    mov rax, [rbp - 1904]
     mov dword [rax], ecx
     test r12, r12
     jnz ir_nonnull_296
@@ -4048,43 +4060,34 @@ ir_nonnull_296:
     ; Load variable: tok
     mov rax, r12      ; From register
     add rax, r10
-    mov [rbp - 1912], rax
-    mov rax, 1
+    mov [rbp - 1920], rax
+    mov rax, 2
     mov rcx, rax
-    mov rax, [rbp - 1912]
+    mov rax, [rbp - 1920]
     mov dword [rax], ecx
-    mov rax, 1
+    mov rax, 2
     mov r10, rax
     ; Load variable: pos
     movsxd rax, r13d      ; From register (signed int32)
     add rax, r10
-    mov [rbp - 1928], rax
-    mov rax, [rbp - 1928]
+    mov [rbp - 1936], rax
+    mov rax, [rbp - 1936]
     ; Store to variable: pos
     mov r13d, eax       ; To register (int32/uint32)
-    mov rax, 1
+    mov rax, 2
     mov r10, rax
     ; Load variable: col
     movsxd rax, r14d      ; From register (signed int32)
     add rax, r10
-    mov [rbp - 1936], rax
-    mov rax, [rbp - 1936]
+    mov [rbp - 1944], rax
+    mov rax, [rbp - 1944]
     ; Store to variable: col
     mov r14d, eax       ; To register (int32/uint32)
-ir_if_end_285:
-    jmp ir_if_end_194
-ir_if_next_284:
-    cmp ebx, 62
-    jne ir_if_next_297
-    mov rax, 1
-    mov r10, rax
-    ; Load variable: pos
-    movsxd rax, r13d      ; From register (signed int32)
-    add rax, r10
-    mov [rbp - 1952], rax
-    test r15, r15
-    jnz ir_nonnull_301
-ir_trap_null_300:
+    jmp ir_if_end_289
+ir_if_next_290:
+    test r12, r12
+    jnz ir_nonnull_298
+ir_trap_null_297:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -4101,29 +4104,21 @@ ir_trap_null_300:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_301:
-    mov rax, 1
+ir_nonnull_298:
+    mov rax, 0
     mov r10, rax
-    mov rax, [rbp - 1952]
-    imul rax, r10
-    mov [rbp - 1960], rax
-    mov rax, [rbp - 1960]
-    mov r10, rax
-    ; Load variable: source
-    mov rax, r15      ; From register
+    ; Load variable: tok
+    mov rax, r12      ; From register
     add rax, r10
-    mov [rbp - 1968], rax
-    mov rax, [rbp - 1968]
-    movzx rax, byte [rax]
-    mov [rbp - 1976], rax
-    mov rax, 61
-    mov r10, rax
-    mov rax, [rbp - 1976]
-    cmp rax, r10
-    jne ir_if_next_299
+    mov [rbp - 1952], rax
+    ; Load variable: TOKEN_LT
+    movsxd rax, dword [rel TOKEN_LT]  ; From global memory
+    mov rcx, rax
+    mov rax, [rbp - 1952]
+    mov dword [rax], ecx
     test r12, r12
-    jnz ir_nonnull_303
-ir_trap_null_302:
+    jnz ir_nonnull_300
+ir_trap_null_299:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -4140,19 +4135,47 @@ ir_trap_null_302:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_303:
-    mov rax, 0
+ir_nonnull_300:
+    mov rax, 8
     mov r10, rax
     ; Load variable: tok
     mov rax, r12      ; From register
     add rax, r10
-    mov [rbp - 1992], rax
-    ; Load variable: TOKEN_GE
-    movsxd rax, dword [rel TOKEN_GE]  ; From global memory
+    mov [rbp - 1968], rax
+    mov rax, 1
     mov rcx, rax
-    mov rax, [rbp - 1992]
+    mov rax, [rbp - 1968]
     mov dword [rax], ecx
-    test r12, r12
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: pos
+    movsxd rax, r13d      ; From register (signed int32)
+    add rax, r10
+    mov [rbp - 1984], rax
+    mov rax, [rbp - 1984]
+    ; Store to variable: pos
+    mov r13d, eax       ; To register (int32/uint32)
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: col
+    movsxd rax, r14d      ; From register (signed int32)
+    add rax, r10
+    mov [rbp - 1992], rax
+    mov rax, [rbp - 1992]
+    ; Store to variable: col
+    mov r14d, eax       ; To register (int32/uint32)
+ir_if_end_289:
+    jmp ir_if_end_198
+ir_if_next_288:
+    cmp ebx, 62
+    jne ir_if_next_301
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: pos
+    movsxd rax, r13d      ; From register (signed int32)
+    add rax, r10
+    mov [rbp - 2008], rax
+    test r15, r15
     jnz ir_nonnull_305
 ir_trap_null_304:
     ; IR call: puts (1 args)
@@ -4172,36 +4195,25 @@ ir_trap_null_304:
     add rsp, 32
     ; Unknown return type - assuming integer
 ir_nonnull_305:
-    mov rax, 8
+    mov rax, 1
     mov r10, rax
-    ; Load variable: tok
-    mov rax, r12      ; From register
-    add rax, r10
-    mov [rbp - 2008], rax
-    mov rax, 2
-    mov rcx, rax
     mov rax, [rbp - 2008]
-    mov dword [rax], ecx
-    mov rax, 2
+    imul rax, r10
+    mov [rbp - 2016], rax
+    mov rax, [rbp - 2016]
     mov r10, rax
-    ; Load variable: pos
-    movsxd rax, r13d      ; From register (signed int32)
+    ; Load variable: source
+    mov rax, r15      ; From register
     add rax, r10
     mov [rbp - 2024], rax
     mov rax, [rbp - 2024]
-    ; Store to variable: pos
-    mov r13d, eax       ; To register (int32/uint32)
-    mov rax, 2
-    mov r10, rax
-    ; Load variable: col
-    movsxd rax, r14d      ; From register (signed int32)
-    add rax, r10
+    movzx rax, byte [rax]
     mov [rbp - 2032], rax
+    mov rax, 61
+    mov r10, rax
     mov rax, [rbp - 2032]
-    ; Store to variable: col
-    mov r14d, eax       ; To register (int32/uint32)
-    jmp ir_if_end_298
-ir_if_next_299:
+    cmp rax, r10
+    jne ir_if_next_303
     test r12, r12
     jnz ir_nonnull_307
 ir_trap_null_306:
@@ -4227,11 +4239,11 @@ ir_nonnull_307:
     ; Load variable: tok
     mov rax, r12      ; From register
     add rax, r10
-    mov [rbp - 2040], rax
-    ; Load variable: TOKEN_GT
-    movsxd rax, dword [rel TOKEN_GT]  ; From global memory
+    mov [rbp - 2048], rax
+    ; Load variable: TOKEN_GE
+    movsxd rax, dword [rel TOKEN_GE]  ; From global memory
     mov rcx, rax
-    mov rax, [rbp - 2040]
+    mov rax, [rbp - 2048]
     mov dword [rax], ecx
     test r12, r12
     jnz ir_nonnull_309
@@ -4258,43 +4270,34 @@ ir_nonnull_309:
     ; Load variable: tok
     mov rax, r12      ; From register
     add rax, r10
-    mov [rbp - 2056], rax
-    mov rax, 1
+    mov [rbp - 2064], rax
+    mov rax, 2
     mov rcx, rax
-    mov rax, [rbp - 2056]
+    mov rax, [rbp - 2064]
     mov dword [rax], ecx
-    mov rax, 1
+    mov rax, 2
     mov r10, rax
     ; Load variable: pos
     movsxd rax, r13d      ; From register (signed int32)
     add rax, r10
-    mov [rbp - 2072], rax
-    mov rax, [rbp - 2072]
+    mov [rbp - 2080], rax
+    mov rax, [rbp - 2080]
     ; Store to variable: pos
     mov r13d, eax       ; To register (int32/uint32)
-    mov rax, 1
+    mov rax, 2
     mov r10, rax
     ; Load variable: col
     movsxd rax, r14d      ; From register (signed int32)
     add rax, r10
-    mov [rbp - 2080], rax
-    mov rax, [rbp - 2080]
+    mov [rbp - 2088], rax
+    mov rax, [rbp - 2088]
     ; Store to variable: col
     mov r14d, eax       ; To register (int32/uint32)
-ir_if_end_298:
-    jmp ir_if_end_194
-ir_if_next_297:
-    cmp ebx, 38
-    jne ir_if_next_310
-    mov rax, 1
-    mov r10, rax
-    ; Load variable: pos
-    movsxd rax, r13d      ; From register (signed int32)
-    add rax, r10
-    mov [rbp - 2096], rax
-    test r15, r15
-    jnz ir_nonnull_314
-ir_trap_null_313:
+    jmp ir_if_end_302
+ir_if_next_303:
+    test r12, r12
+    jnz ir_nonnull_311
+ir_trap_null_310:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -4311,29 +4314,21 @@ ir_trap_null_313:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_314:
-    mov rax, 1
+ir_nonnull_311:
+    mov rax, 0
     mov r10, rax
-    mov rax, [rbp - 2096]
-    imul rax, r10
-    mov [rbp - 2104], rax
-    mov rax, [rbp - 2104]
-    mov r10, rax
-    ; Load variable: source
-    mov rax, r15      ; From register
+    ; Load variable: tok
+    mov rax, r12      ; From register
     add rax, r10
-    mov [rbp - 2112], rax
-    mov rax, [rbp - 2112]
-    movzx rax, byte [rax]
-    mov [rbp - 2120], rax
-    mov rax, 38
-    mov r10, rax
-    mov rax, [rbp - 2120]
-    cmp rax, r10
-    jne ir_if_next_312
+    mov [rbp - 2096], rax
+    ; Load variable: TOKEN_GT
+    movsxd rax, dword [rel TOKEN_GT]  ; From global memory
+    mov rcx, rax
+    mov rax, [rbp - 2096]
+    mov dword [rax], ecx
     test r12, r12
-    jnz ir_nonnull_316
-ir_trap_null_315:
+    jnz ir_nonnull_313
+ir_trap_null_312:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -4350,19 +4345,47 @@ ir_trap_null_315:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_316:
-    mov rax, 0
+ir_nonnull_313:
+    mov rax, 8
     mov r10, rax
     ; Load variable: tok
     mov rax, r12      ; From register
     add rax, r10
-    mov [rbp - 2136], rax
-    ; Load variable: TOKEN_AND
-    movsxd rax, dword [rel TOKEN_AND]  ; From global memory
+    mov [rbp - 2112], rax
+    mov rax, 1
     mov rcx, rax
-    mov rax, [rbp - 2136]
+    mov rax, [rbp - 2112]
     mov dword [rax], ecx
-    test r12, r12
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: pos
+    movsxd rax, r13d      ; From register (signed int32)
+    add rax, r10
+    mov [rbp - 2128], rax
+    mov rax, [rbp - 2128]
+    ; Store to variable: pos
+    mov r13d, eax       ; To register (int32/uint32)
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: col
+    movsxd rax, r14d      ; From register (signed int32)
+    add rax, r10
+    mov [rbp - 2136], rax
+    mov rax, [rbp - 2136]
+    ; Store to variable: col
+    mov r14d, eax       ; To register (int32/uint32)
+ir_if_end_302:
+    jmp ir_if_end_198
+ir_if_next_301:
+    cmp ebx, 38
+    jne ir_if_next_314
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: pos
+    movsxd rax, r13d      ; From register (signed int32)
+    add rax, r10
+    mov [rbp - 2152], rax
+    test r15, r15
     jnz ir_nonnull_318
 ir_trap_null_317:
     ; IR call: puts (1 args)
@@ -4382,36 +4405,25 @@ ir_trap_null_317:
     add rsp, 32
     ; Unknown return type - assuming integer
 ir_nonnull_318:
-    mov rax, 8
+    mov rax, 1
     mov r10, rax
-    ; Load variable: tok
-    mov rax, r12      ; From register
-    add rax, r10
-    mov [rbp - 2152], rax
-    mov rax, 2
-    mov rcx, rax
     mov rax, [rbp - 2152]
-    mov dword [rax], ecx
-    mov rax, 2
+    imul rax, r10
+    mov [rbp - 2160], rax
+    mov rax, [rbp - 2160]
     mov r10, rax
-    ; Load variable: pos
-    movsxd rax, r13d      ; From register (signed int32)
+    ; Load variable: source
+    mov rax, r15      ; From register
     add rax, r10
     mov [rbp - 2168], rax
     mov rax, [rbp - 2168]
-    ; Store to variable: pos
-    mov r13d, eax       ; To register (int32/uint32)
-    mov rax, 2
-    mov r10, rax
-    ; Load variable: col
-    movsxd rax, r14d      ; From register (signed int32)
-    add rax, r10
+    movzx rax, byte [rax]
     mov [rbp - 2176], rax
+    mov rax, 38
+    mov r10, rax
     mov rax, [rbp - 2176]
-    ; Store to variable: col
-    mov r14d, eax       ; To register (int32/uint32)
-    jmp ir_if_end_311
-ir_if_next_312:
+    cmp rax, r10
+    jne ir_if_next_316
     test r12, r12
     jnz ir_nonnull_320
 ir_trap_null_319:
@@ -4437,11 +4449,11 @@ ir_nonnull_320:
     ; Load variable: tok
     mov rax, r12      ; From register
     add rax, r10
-    mov [rbp - 2184], rax
-    ; Load variable: TOKEN_ERROR
-    movsxd rax, dword [rel TOKEN_ERROR]  ; From global memory
+    mov [rbp - 2192], rax
+    ; Load variable: TOKEN_AND
+    movsxd rax, dword [rel TOKEN_AND]  ; From global memory
     mov rcx, rax
-    mov rax, [rbp - 2184]
+    mov rax, [rbp - 2192]
     mov dword [rax], ecx
     test r12, r12
     jnz ir_nonnull_322
@@ -4468,36 +4480,34 @@ ir_nonnull_322:
     ; Load variable: tok
     mov rax, r12      ; From register
     add rax, r10
-    mov [rbp - 2200], rax
-    mov rax, 1
+    mov [rbp - 2208], rax
+    mov rax, 2
     mov rcx, rax
-    mov rax, [rbp - 2200]
+    mov rax, [rbp - 2208]
     mov dword [rax], ecx
-    mov rax, 1
-    neg rax
-    mov [rbp - 2216], rax
-    mov rax, [rbp - 2216]
-    mov [rbp - 2224], rax
-    cmp qword [rbp - 2224], 0
-    jnz ir_errdefer_end_324
-ir_errdefer_ok_323:
-ir_errdefer_end_324:
-    mov rax, [rbp - 2216]
-    jmp Llex_all_exit
-ir_if_end_311:
-    jmp ir_if_end_194
-ir_if_next_310:
-    cmp ebx, 124
-    jne ir_if_next_325
-    mov rax, 1
+    mov rax, 2
     mov r10, rax
     ; Load variable: pos
     movsxd rax, r13d      ; From register (signed int32)
     add rax, r10
-    mov [rbp - 2240], rax
-    test r15, r15
-    jnz ir_nonnull_329
-ir_trap_null_328:
+    mov [rbp - 2224], rax
+    mov rax, [rbp - 2224]
+    ; Store to variable: pos
+    mov r13d, eax       ; To register (int32/uint32)
+    mov rax, 2
+    mov r10, rax
+    ; Load variable: col
+    movsxd rax, r14d      ; From register (signed int32)
+    add rax, r10
+    mov [rbp - 2232], rax
+    mov rax, [rbp - 2232]
+    ; Store to variable: col
+    mov r14d, eax       ; To register (int32/uint32)
+    jmp ir_if_end_315
+ir_if_next_316:
+    test r12, r12
+    jnz ir_nonnull_324
+ir_trap_null_323:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -4514,29 +4524,21 @@ ir_trap_null_328:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_329:
-    mov rax, 1
+ir_nonnull_324:
+    mov rax, 0
     mov r10, rax
-    mov rax, [rbp - 2240]
-    imul rax, r10
-    mov [rbp - 2248], rax
-    mov rax, [rbp - 2248]
-    mov r10, rax
-    ; Load variable: source
-    mov rax, r15      ; From register
+    ; Load variable: tok
+    mov rax, r12      ; From register
     add rax, r10
-    mov [rbp - 2256], rax
-    mov rax, [rbp - 2256]
-    movzx rax, byte [rax]
-    mov [rbp - 2264], rax
-    mov rax, 124
-    mov r10, rax
-    mov rax, [rbp - 2264]
-    cmp rax, r10
-    jne ir_if_next_327
+    mov [rbp - 2240], rax
+    ; Load variable: TOKEN_ERROR
+    movsxd rax, dword [rel TOKEN_ERROR]  ; From global memory
+    mov rcx, rax
+    mov rax, [rbp - 2240]
+    mov dword [rax], ecx
     test r12, r12
-    jnz ir_nonnull_331
-ir_trap_null_330:
+    jnz ir_nonnull_326
+ir_trap_null_325:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -4553,19 +4555,40 @@ ir_trap_null_330:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_331:
-    mov rax, 0
+ir_nonnull_326:
+    mov rax, 8
     mov r10, rax
     ; Load variable: tok
     mov rax, r12      ; From register
     add rax, r10
-    mov [rbp - 2280], rax
-    ; Load variable: TOKEN_OR
-    movsxd rax, dword [rel TOKEN_OR]  ; From global memory
+    mov [rbp - 2256], rax
+    mov rax, 1
     mov rcx, rax
-    mov rax, [rbp - 2280]
+    mov rax, [rbp - 2256]
     mov dword [rax], ecx
-    test r12, r12
+    mov rax, 1
+    neg rax
+    mov [rbp - 2272], rax
+    mov rax, [rbp - 2272]
+    mov [rbp - 2280], rax
+    cmp qword [rbp - 2280], 0
+    jnz ir_errdefer_end_328
+ir_errdefer_ok_327:
+ir_errdefer_end_328:
+    mov rax, [rbp - 2272]
+    jmp Llex_all_exit
+ir_if_end_315:
+    jmp ir_if_end_198
+ir_if_next_314:
+    cmp ebx, 124
+    jne ir_if_next_329
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: pos
+    movsxd rax, r13d      ; From register (signed int32)
+    add rax, r10
+    mov [rbp - 2296], rax
+    test r15, r15
     jnz ir_nonnull_333
 ir_trap_null_332:
     ; IR call: puts (1 args)
@@ -4585,36 +4608,25 @@ ir_trap_null_332:
     add rsp, 32
     ; Unknown return type - assuming integer
 ir_nonnull_333:
-    mov rax, 8
+    mov rax, 1
     mov r10, rax
-    ; Load variable: tok
-    mov rax, r12      ; From register
-    add rax, r10
-    mov [rbp - 2296], rax
-    mov rax, 2
-    mov rcx, rax
     mov rax, [rbp - 2296]
-    mov dword [rax], ecx
-    mov rax, 2
+    imul rax, r10
+    mov [rbp - 2304], rax
+    mov rax, [rbp - 2304]
     mov r10, rax
-    ; Load variable: pos
-    movsxd rax, r13d      ; From register (signed int32)
+    ; Load variable: source
+    mov rax, r15      ; From register
     add rax, r10
     mov [rbp - 2312], rax
     mov rax, [rbp - 2312]
-    ; Store to variable: pos
-    mov r13d, eax       ; To register (int32/uint32)
-    mov rax, 2
-    mov r10, rax
-    ; Load variable: col
-    movsxd rax, r14d      ; From register (signed int32)
-    add rax, r10
+    movzx rax, byte [rax]
     mov [rbp - 2320], rax
+    mov rax, 124
+    mov r10, rax
     mov rax, [rbp - 2320]
-    ; Store to variable: col
-    mov r14d, eax       ; To register (int32/uint32)
-    jmp ir_if_end_326
-ir_if_next_327:
+    cmp rax, r10
+    jne ir_if_next_331
     test r12, r12
     jnz ir_nonnull_335
 ir_trap_null_334:
@@ -4640,11 +4652,11 @@ ir_nonnull_335:
     ; Load variable: tok
     mov rax, r12      ; From register
     add rax, r10
-    mov [rbp - 2328], rax
-    ; Load variable: TOKEN_ERROR
-    movsxd rax, dword [rel TOKEN_ERROR]  ; From global memory
+    mov [rbp - 2336], rax
+    ; Load variable: TOKEN_OR
+    movsxd rax, dword [rel TOKEN_OR]  ; From global memory
     mov rcx, rax
-    mov rax, [rbp - 2328]
+    mov rax, [rbp - 2336]
     mov dword [rax], ecx
     test r12, r12
     jnz ir_nonnull_337
@@ -4671,53 +4683,34 @@ ir_nonnull_337:
     ; Load variable: tok
     mov rax, r12      ; From register
     add rax, r10
-    mov [rbp - 2344], rax
-    mov rax, 1
+    mov [rbp - 2352], rax
+    mov rax, 2
     mov rcx, rax
-    mov rax, [rbp - 2344]
+    mov rax, [rbp - 2352]
     mov dword [rax], ecx
-    mov rax, 1
-    neg rax
-    mov [rbp - 2360], rax
-    mov rax, [rbp - 2360]
-    mov [rbp - 2368], rax
-    cmp qword [rbp - 2368], 0
-    jnz ir_errdefer_end_339
-ir_errdefer_ok_338:
-ir_errdefer_end_339:
-    mov rax, [rbp - 2360]
-    jmp Llex_all_exit
-ir_if_end_326:
-    jmp ir_if_end_194
-ir_if_next_325:
-    cmp ebx, 34
-    jne ir_if_next_340
-    ; Load variable: pos
-    movsxd rax, r13d      ; From register (signed int32)
-    ; Store to variable: str_start
-    mov dword [rbp - 76], eax  ; To stack [rbp - 76]
-    mov rax, 1
+    mov rax, 2
     mov r10, rax
     ; Load variable: pos
     movsxd rax, r13d      ; From register (signed int32)
     add rax, r10
-    mov [rbp - 2384], rax
-    mov rax, [rbp - 2384]
+    mov [rbp - 2368], rax
+    mov rax, [rbp - 2368]
     ; Store to variable: pos
     mov r13d, eax       ; To register (int32/uint32)
-    mov rax, 1
+    mov rax, 2
     mov r10, rax
     ; Load variable: col
     movsxd rax, r14d      ; From register (signed int32)
     add rax, r10
-    mov [rbp - 2392], rax
-    mov rax, [rbp - 2392]
+    mov [rbp - 2376], rax
+    mov rax, [rbp - 2376]
     ; Store to variable: col
     mov r14d, eax       ; To register (int32/uint32)
-ir_while_341:
-    test r15, r15
-    jnz ir_nonnull_344
-ir_trap_null_343:
+    jmp ir_if_end_330
+ir_if_next_331:
+    test r12, r12
+    jnz ir_nonnull_339
+ir_trap_null_338:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -4734,34 +4727,94 @@ ir_trap_null_343:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_344:
+ir_nonnull_339:
+    mov rax, 0
+    mov r10, rax
+    ; Load variable: tok
+    mov rax, r12      ; From register
+    add rax, r10
+    mov [rbp - 2384], rax
+    ; Load variable: TOKEN_ERROR
+    movsxd rax, dword [rel TOKEN_ERROR]  ; From global memory
+    mov rcx, rax
+    mov rax, [rbp - 2384]
+    mov dword [rax], ecx
+    test r12, r12
+    jnz ir_nonnull_341
+ir_trap_null_340:
+    ; IR call: puts (1 args)
+    sub rsp, 32
+    ; String literal (37 bytes)
+    lea rax, [rel Lstr_struct186]  ; Load string struct address
+    mov rcx, rax
+    call puts
+    add rsp, 32
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    ; IR call: exit (1 args)
+    sub rsp, 32
+    mov rax, 1
+    mov rcx, rax
+    call exit
+    add rsp, 32
+    ; Unknown return type - assuming integer
+ir_nonnull_341:
+    mov rax, 8
+    mov r10, rax
+    ; Load variable: tok
+    mov rax, r12      ; From register
+    add rax, r10
+    mov [rbp - 2400], rax
+    mov rax, 1
+    mov rcx, rax
+    mov rax, [rbp - 2400]
+    mov dword [rax], ecx
+    mov rax, 1
+    neg rax
+    mov [rbp - 2416], rax
+    mov rax, [rbp - 2416]
+    mov [rbp - 2424], rax
+    cmp qword [rbp - 2424], 0
+    jnz ir_errdefer_end_343
+ir_errdefer_ok_342:
+ir_errdefer_end_343:
+    mov rax, [rbp - 2416]
+    jmp Llex_all_exit
+ir_if_end_330:
+    jmp ir_if_end_198
+ir_if_next_329:
+    cmp ebx, 34
+    jne ir_if_next_344
+    ; Load variable: pos
+    movsxd rax, r13d      ; From register (signed int32)
+    ; Store to variable: str_start
+    mov dword [rbp - 76], eax  ; To stack [rbp - 76]
     mov rax, 1
     mov r10, rax
     ; Load variable: pos
     movsxd rax, r13d      ; From register (signed int32)
-    imul rax, r10
-    mov [rbp - 2400], rax
-    mov rax, [rbp - 2400]
-    mov r10, rax
-    ; Load variable: source
-    mov rax, r15      ; From register
     add rax, r10
-    mov [rbp - 2408], rax
-    mov rax, [rbp - 2408]
-    movzx rax, byte [rax]
-    mov [rbp - 2416], rax
-    mov rax, 0
+    mov [rbp - 2440], rax
+    mov rax, [rbp - 2440]
+    ; Store to variable: pos
+    mov r13d, eax       ; To register (int32/uint32)
+    mov rax, 1
     mov r10, rax
-    mov rax, [rbp - 2416]
-    cmp rax, r10
-    je ir_while_end_342
+    ; Load variable: col
+    movsxd rax, r14d      ; From register (signed int32)
+    add rax, r10
+    mov [rbp - 2448], rax
+    mov rax, [rbp - 2448]
+    ; Store to variable: col
+    mov r14d, eax       ; To register (int32/uint32)
+ir_while_345:
     test r15, r15
     jnz ir_nonnull_348
 ir_trap_null_347:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
-    lea rax, [rel Lstr_struct186]  ; Load string struct address
+    lea rax, [rel Lstr_struct188]  ; Load string struct address
     mov rcx, rax
     call puts
     add rsp, 32
@@ -4780,77 +4833,22 @@ ir_nonnull_348:
     ; Load variable: pos
     movsxd rax, r13d      ; From register (signed int32)
     imul rax, r10
-    mov [rbp - 2432], rax
-    mov rax, [rbp - 2432]
+    mov [rbp - 2456], rax
+    mov rax, [rbp - 2456]
     mov r10, rax
     ; Load variable: source
     mov rax, r15      ; From register
     add rax, r10
-    mov [rbp - 2440], rax
-    mov rax, [rbp - 2440]
-    movzx rax, byte [rax]
-    mov [rbp - 2448], rax
-    mov rax, 34
-    mov r10, rax
-    mov rax, [rbp - 2448]
-    cmp rax, r10
-    jne ir_if_next_346
-    mov rax, 1
-    mov r10, rax
-    ; Load variable: pos
-    movsxd rax, r13d      ; From register (signed int32)
-    add rax, r10
     mov [rbp - 2464], rax
     mov rax, [rbp - 2464]
-    ; Store to variable: pos
-    mov r13d, eax       ; To register (int32/uint32)
-    mov rax, 1
-    mov r10, rax
-    ; Load variable: col
-    movsxd rax, r14d      ; From register (signed int32)
-    add rax, r10
+    movzx rax, byte [rax]
     mov [rbp - 2472], rax
-    mov rax, [rbp - 2472]
-    ; Store to variable: col
-    mov r14d, eax       ; To register (int32/uint32)
-    test r12, r12
-    jnz ir_nonnull_350
-ir_trap_null_349:
-    ; IR call: puts (1 args)
-    sub rsp, 32
-    ; String literal (37 bytes)
-    lea rax, [rel Lstr_struct188]  ; Load string struct address
-    mov rcx, rax
-    call puts
-    add rsp, 32
-    ; Integer/pointer return value in rax
-    ; 32-bit return value already in eax
-    ; IR call: exit (1 args)
-    sub rsp, 32
-    mov rax, 1
-    mov rcx, rax
-    call exit
-    add rsp, 32
-    ; Unknown return type - assuming integer
-ir_nonnull_350:
     mov rax, 0
     mov r10, rax
-    ; Load variable: tok
-    mov rax, r12      ; From register
-    add rax, r10
-    mov [rbp - 2480], rax
-    ; Load variable: TOKEN_STRING
-    movsxd rax, dword [rel TOKEN_STRING]  ; From global memory
-    mov rcx, rax
-    mov rax, [rbp - 2480]
-    mov dword [rax], ecx
-    mov rax, 1
-    mov r10, rax
-    ; Load variable: str_start
-    movsxd rax, dword [rbp - 76]  ; From stack [rbp - 76]
-    add rax, r10
-    mov [rbp - 2496], rax
-    test r12, r12
+    mov rax, [rbp - 2472]
+    cmp rax, r10
+    je ir_while_end_346
+    test r15, r15
     jnz ir_nonnull_352
 ir_trap_null_351:
     ; IR call: puts (1 args)
@@ -4870,33 +4868,44 @@ ir_trap_null_351:
     add rsp, 32
     ; Unknown return type - assuming integer
 ir_nonnull_352:
-    mov rax, 4
-    mov r10, rax
-    ; Load variable: tok
-    mov rax, r12      ; From register
-    add rax, r10
-    mov [rbp - 2504], rax
-    mov rax, [rbp - 2496]
-    mov rcx, rax
-    mov rax, [rbp - 2504]
-    mov dword [rax], ecx
     mov rax, 1
     mov r10, rax
     ; Load variable: pos
     movsxd rax, r13d      ; From register (signed int32)
-    sub rax, r10
-    mov [rbp - 2520], rax
+    imul rax, r10
+    mov [rbp - 2488], rax
+    mov rax, [rbp - 2488]
+    mov r10, rax
+    ; Load variable: source
+    mov rax, r15      ; From register
+    add rax, r10
+    mov [rbp - 2496], rax
+    mov rax, [rbp - 2496]
+    movzx rax, byte [rax]
+    mov [rbp - 2504], rax
+    mov rax, 34
+    mov r10, rax
+    mov rax, [rbp - 2504]
+    cmp rax, r10
+    jne ir_if_next_350
     mov rax, 1
     mov r10, rax
-    ; Load variable: str_start
-    movsxd rax, dword [rbp - 76]  ; From stack [rbp - 76]
+    ; Load variable: pos
+    movsxd rax, r13d      ; From register (signed int32)
+    add rax, r10
+    mov [rbp - 2520], rax
+    mov rax, [rbp - 2520]
+    ; Store to variable: pos
+    mov r13d, eax       ; To register (int32/uint32)
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: col
+    movsxd rax, r14d      ; From register (signed int32)
     add rax, r10
     mov [rbp - 2528], rax
     mov rax, [rbp - 2528]
-    mov r10, rax
-    mov rax, [rbp - 2520]
-    sub rax, r10
-    mov [rbp - 2536], rax
+    ; Store to variable: col
+    mov r14d, eax       ; To register (int32/uint32)
     test r12, r12
     jnz ir_nonnull_354
 ir_trap_null_353:
@@ -4917,23 +4926,26 @@ ir_trap_null_353:
     add rsp, 32
     ; Unknown return type - assuming integer
 ir_nonnull_354:
-    mov rax, 8
+    mov rax, 0
     mov r10, rax
     ; Load variable: tok
     mov rax, r12      ; From register
     add rax, r10
-    mov [rbp - 2544], rax
-    mov rax, [rbp - 2536]
+    mov [rbp - 2536], rax
+    ; Load variable: TOKEN_STRING
+    movsxd rax, dword [rel TOKEN_STRING]  ; From global memory
     mov rcx, rax
-    mov rax, [rbp - 2544]
+    mov rax, [rbp - 2536]
     mov dword [rax], ecx
-    jmp ir_while_end_342
-    jmp ir_if_end_345
-ir_if_next_346:
-ir_if_end_345:
-    test r15, r15
-    jnz ir_nonnull_358
-ir_trap_null_357:
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: str_start
+    movsxd rax, dword [rbp - 76]  ; From stack [rbp - 76]
+    add rax, r10
+    mov [rbp - 2552], rax
+    test r12, r12
+    jnz ir_nonnull_356
+ir_trap_null_355:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -4950,71 +4962,37 @@ ir_trap_null_357:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_358:
+ir_nonnull_356:
+    mov rax, 4
+    mov r10, rax
+    ; Load variable: tok
+    mov rax, r12      ; From register
+    add rax, r10
+    mov [rbp - 2560], rax
+    mov rax, [rbp - 2552]
+    mov rcx, rax
+    mov rax, [rbp - 2560]
+    mov dword [rax], ecx
     mov rax, 1
     mov r10, rax
     ; Load variable: pos
     movsxd rax, r13d      ; From register (signed int32)
-    imul rax, r10
-    mov [rbp - 2560], rax
-    mov rax, [rbp - 2560]
-    mov r10, rax
-    ; Load variable: source
-    mov rax, r15      ; From register
-    add rax, r10
-    mov [rbp - 2568], rax
-    mov rax, [rbp - 2568]
-    movzx rax, byte [rax]
+    sub rax, r10
     mov [rbp - 2576], rax
-    mov rax, 92
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: str_start
+    movsxd rax, dword [rbp - 76]  ; From stack [rbp - 76]
+    add rax, r10
+    mov [rbp - 2584], rax
+    mov rax, [rbp - 2584]
     mov r10, rax
     mov rax, [rbp - 2576]
-    cmp rax, r10
-    jne ir_if_next_356
-    mov rax, 2
-    mov r10, rax
-    ; Load variable: pos
-    movsxd rax, r13d      ; From register (signed int32)
-    add rax, r10
+    sub rax, r10
     mov [rbp - 2592], rax
-    mov rax, [rbp - 2592]
-    ; Store to variable: pos
-    mov r13d, eax       ; To register (int32/uint32)
-    mov rax, 2
-    mov r10, rax
-    ; Load variable: col
-    movsxd rax, r14d      ; From register (signed int32)
-    add rax, r10
-    mov [rbp - 2600], rax
-    mov rax, [rbp - 2600]
-    ; Store to variable: col
-    mov r14d, eax       ; To register (int32/uint32)
-    jmp ir_if_end_355
-ir_if_next_356:
-    mov rax, 1
-    mov r10, rax
-    ; Load variable: pos
-    movsxd rax, r13d      ; From register (signed int32)
-    add rax, r10
-    mov [rbp - 2608], rax
-    mov rax, [rbp - 2608]
-    ; Store to variable: pos
-    mov r13d, eax       ; To register (int32/uint32)
-    mov rax, 1
-    mov r10, rax
-    ; Load variable: col
-    movsxd rax, r14d      ; From register (signed int32)
-    add rax, r10
-    mov [rbp - 2616], rax
-    mov rax, [rbp - 2616]
-    ; Store to variable: col
-    mov r14d, eax       ; To register (int32/uint32)
-ir_if_end_355:
-    jmp ir_while_341
-ir_while_end_342:
     test r12, r12
-    jnz ir_nonnull_362
-ir_trap_null_361:
+    jnz ir_nonnull_358
+ir_trap_null_357:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -5031,25 +5009,24 @@ ir_trap_null_361:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_362:
-    mov rax, 0
+ir_nonnull_358:
+    mov rax, 8
     mov r10, rax
     ; Load variable: tok
     mov rax, r12      ; From register
     add rax, r10
-    mov [rbp - 2624], rax
-    mov rax, [rbp - 2624]
-    mov eax, dword [rax]
-    mov [rbp - 2632], rax
-    ; Load variable: TOKEN_STRING
-    movsxd rax, dword [rel TOKEN_STRING]  ; From global memory
-    mov r10, rax
-    mov rax, [rbp - 2632]
-    cmp rax, r10
-    je ir_if_next_360
-    test r12, r12
-    jnz ir_nonnull_364
-ir_trap_null_363:
+    mov [rbp - 2600], rax
+    mov rax, [rbp - 2592]
+    mov rcx, rax
+    mov rax, [rbp - 2600]
+    mov dword [rax], ecx
+    jmp ir_while_end_346
+    jmp ir_if_end_349
+ir_if_next_350:
+ir_if_end_349:
+    test r15, r15
+    jnz ir_nonnull_362
+ir_trap_null_361:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -5066,58 +5043,54 @@ ir_trap_null_363:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_364:
-    mov rax, 0
+ir_nonnull_362:
+    mov rax, 1
     mov r10, rax
-    ; Load variable: tok
-    mov rax, r12      ; From register
+    ; Load variable: pos
+    movsxd rax, r13d      ; From register (signed int32)
+    imul rax, r10
+    mov [rbp - 2616], rax
+    mov rax, [rbp - 2616]
+    mov r10, rax
+    ; Load variable: source
+    mov rax, r15      ; From register
+    add rax, r10
+    mov [rbp - 2624], rax
+    mov rax, [rbp - 2624]
+    movzx rax, byte [rax]
+    mov [rbp - 2632], rax
+    mov rax, 92
+    mov r10, rax
+    mov rax, [rbp - 2632]
+    cmp rax, r10
+    jne ir_if_next_360
+    mov rax, 2
+    mov r10, rax
+    ; Load variable: pos
+    movsxd rax, r13d      ; From register (signed int32)
     add rax, r10
     mov [rbp - 2648], rax
-    ; Load variable: TOKEN_ERROR
-    movsxd rax, dword [rel TOKEN_ERROR]  ; From global memory
-    mov rcx, rax
     mov rax, [rbp - 2648]
-    mov dword [rax], ecx
-    mov rax, 1
-    neg rax
-    mov [rbp - 2664], rax
-    mov rax, [rbp - 2664]
-    mov [rbp - 2672], rax
-    cmp qword [rbp - 2672], 0
-    jnz ir_errdefer_end_366
-ir_errdefer_ok_365:
-ir_errdefer_end_366:
-    mov rax, [rbp - 2664]
-    jmp Llex_all_exit
+    ; Store to variable: pos
+    mov r13d, eax       ; To register (int32/uint32)
+    mov rax, 2
+    mov r10, rax
+    ; Load variable: col
+    movsxd rax, r14d      ; From register (signed int32)
+    add rax, r10
+    mov [rbp - 2656], rax
+    mov rax, [rbp - 2656]
+    ; Store to variable: col
+    mov r14d, eax       ; To register (int32/uint32)
     jmp ir_if_end_359
 ir_if_next_360:
-ir_if_end_359:
-    jmp ir_if_end_194
-ir_if_next_340:
-    ; IR call: is_alpha (1 args)
-    ; Load variable: c
-    movsxd rax, ebx      ; From register (signed int32)
-    mov rcx, rax
-    call is_alpha
-    ; Integer/pointer return value in rax
-    ; 32-bit return value already in eax
-    mov [rbp - 2680], rax
-    mov rax, 0
-    mov r10, rax
-    mov rax, [rbp - 2680]
-    cmp rax, r10
-    je ir_if_next_367
-    ; Load variable: pos
-    movsxd rax, r13d      ; From register (signed int32)
-    ; Store to variable: start
-    mov dword [rbp - 80], eax  ; To stack [rbp - 80]
     mov rax, 1
     mov r10, rax
     ; Load variable: pos
     movsxd rax, r13d      ; From register (signed int32)
     add rax, r10
-    mov [rbp - 2696], rax
-    mov rax, [rbp - 2696]
+    mov [rbp - 2664], rax
+    mov rax, [rbp - 2664]
     ; Store to variable: pos
     mov r13d, eax       ; To register (int32/uint32)
     mov rax, 1
@@ -5125,14 +5098,16 @@ ir_if_next_340:
     ; Load variable: col
     movsxd rax, r14d      ; From register (signed int32)
     add rax, r10
-    mov [rbp - 2704], rax
-    mov rax, [rbp - 2704]
+    mov [rbp - 2672], rax
+    mov rax, [rbp - 2672]
     ; Store to variable: col
     mov r14d, eax       ; To register (int32/uint32)
-ir_while_368:
-    test r15, r15
-    jnz ir_nonnull_371
-ir_trap_null_370:
+ir_if_end_359:
+    jmp ir_while_345
+ir_while_end_346:
+    test r12, r12
+    jnz ir_nonnull_366
+ir_trap_null_365:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -5149,26 +5124,74 @@ ir_trap_null_370:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_371:
-    mov rax, 1
+ir_nonnull_366:
+    mov rax, 0
     mov r10, rax
-    ; Load variable: pos
-    movsxd rax, r13d      ; From register (signed int32)
-    imul rax, r10
-    mov [rbp - 2712], rax
-    mov rax, [rbp - 2712]
-    mov r10, rax
-    ; Load variable: source
-    mov rax, r15      ; From register
+    ; Load variable: tok
+    mov rax, r12      ; From register
     add rax, r10
+    mov [rbp - 2680], rax
+    mov rax, [rbp - 2680]
+    mov eax, dword [rax]
+    mov [rbp - 2688], rax
+    ; Load variable: TOKEN_STRING
+    movsxd rax, dword [rel TOKEN_STRING]  ; From global memory
+    mov r10, rax
+    mov rax, [rbp - 2688]
+    cmp rax, r10
+    je ir_if_next_364
+    test r12, r12
+    jnz ir_nonnull_368
+ir_trap_null_367:
+    ; IR call: puts (1 args)
+    sub rsp, 32
+    ; String literal (37 bytes)
+    lea rax, [rel Lstr_struct202]  ; Load string struct address
+    mov rcx, rax
+    call puts
+    add rsp, 32
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    ; IR call: exit (1 args)
+    sub rsp, 32
+    mov rax, 1
+    mov rcx, rax
+    call exit
+    add rsp, 32
+    ; Unknown return type - assuming integer
+ir_nonnull_368:
+    mov rax, 0
+    mov r10, rax
+    ; Load variable: tok
+    mov rax, r12      ; From register
+    add rax, r10
+    mov [rbp - 2704], rax
+    ; Load variable: TOKEN_ERROR
+    movsxd rax, dword [rel TOKEN_ERROR]  ; From global memory
+    mov rcx, rax
+    mov rax, [rbp - 2704]
+    mov dword [rax], ecx
+    mov rax, 1
+    neg rax
     mov [rbp - 2720], rax
     mov rax, [rbp - 2720]
-    movzx rax, byte [rax]
     mov [rbp - 2728], rax
-    ; IR call: is_alnum (1 args)
-    mov rax, [rbp - 2728]
+    cmp qword [rbp - 2728], 0
+    jnz ir_errdefer_end_370
+ir_errdefer_ok_369:
+ir_errdefer_end_370:
+    mov rax, [rbp - 2720]
+    jmp Llex_all_exit
+    jmp ir_if_end_363
+ir_if_next_364:
+ir_if_end_363:
+    jmp ir_if_end_198
+ir_if_next_344:
+    ; IR call: is_alpha (1 args)
+    ; Load variable: c
+    movsxd rax, ebx      ; From register (signed int32)
     mov rcx, rax
-    call is_alnum
+    call is_alpha
     ; Integer/pointer return value in rax
     ; 32-bit return value already in eax
     mov [rbp - 2736], rax
@@ -5176,7 +5199,11 @@ ir_nonnull_371:
     mov r10, rax
     mov rax, [rbp - 2736]
     cmp rax, r10
-    je ir_while_end_369
+    je ir_if_next_371
+    ; Load variable: pos
+    movsxd rax, r13d      ; From register (signed int32)
+    ; Store to variable: start
+    mov dword [rbp - 80], eax  ; To stack [rbp - 80]
     mov rax, 1
     mov r10, rax
     ; Load variable: pos
@@ -5195,59 +5222,8 @@ ir_nonnull_371:
     mov rax, [rbp - 2760]
     ; Store to variable: col
     mov r14d, eax       ; To register (int32/uint32)
-    jmp ir_while_368
-ir_while_end_369:
-    ; Load variable: start
-    movsxd rax, dword [rbp - 80]  ; From stack [rbp - 80]
-    mov r10, rax
-    ; Load variable: pos
-    movsxd rax, r13d      ; From register (signed int32)
-    sub rax, r10
-    mov [rbp - 2768], rax
-    ; IR call: keyword_type (3 args)
-    ; Load variable: source
-    mov rax, r15      ; From register
-    mov rcx, rax
-    ; Load variable: start
-    movsxd rax, dword [rbp - 80]  ; From stack [rbp - 80]
-    mov rdx, rax
-    mov rax, [rbp - 2768]
-    mov r8, rax
-    call keyword_type
-    ; Integer/pointer return value in rax
-    ; 32-bit return value already in eax
-    mov [rbp - 2776], rax
-    test r12, r12
-    jnz ir_nonnull_373
-ir_trap_null_372:
-    ; IR call: puts (1 args)
-    sub rsp, 32
-    ; String literal (37 bytes)
-    lea rax, [rel Lstr_struct202]  ; Load string struct address
-    mov rcx, rax
-    call puts
-    add rsp, 32
-    ; Integer/pointer return value in rax
-    ; 32-bit return value already in eax
-    ; IR call: exit (1 args)
-    sub rsp, 32
-    mov rax, 1
-    mov rcx, rax
-    call exit
-    add rsp, 32
-    ; Unknown return type - assuming integer
-ir_nonnull_373:
-    mov rax, 0
-    mov r10, rax
-    ; Load variable: tok
-    mov rax, r12      ; From register
-    add rax, r10
-    mov [rbp - 2784], rax
-    mov rax, [rbp - 2776]
-    mov rcx, rax
-    mov rax, [rbp - 2784]
-    mov dword [rax], ecx
-    test r12, r12
+ir_while_372:
+    test r15, r15
     jnz ir_nonnull_375
 ir_trap_null_374:
     ; IR call: puts (1 args)
@@ -5267,24 +5243,73 @@ ir_trap_null_374:
     add rsp, 32
     ; Unknown return type - assuming integer
 ir_nonnull_375:
-    mov rax, 4
+    mov rax, 1
     mov r10, rax
-    ; Load variable: tok
-    mov rax, r12      ; From register
+    ; Load variable: pos
+    movsxd rax, r13d      ; From register (signed int32)
+    imul rax, r10
+    mov [rbp - 2768], rax
+    mov rax, [rbp - 2768]
+    mov r10, rax
+    ; Load variable: source
+    mov rax, r15      ; From register
     add rax, r10
-    mov [rbp - 2800], rax
-    ; Load variable: start
-    movsxd rax, dword [rbp - 80]  ; From stack [rbp - 80]
+    mov [rbp - 2776], rax
+    mov rax, [rbp - 2776]
+    movzx rax, byte [rax]
+    mov [rbp - 2784], rax
+    ; IR call: is_alnum (1 args)
+    mov rax, [rbp - 2784]
     mov rcx, rax
-    mov rax, [rbp - 2800]
-    mov dword [rax], ecx
+    call is_alnum
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    mov [rbp - 2792], rax
+    mov rax, 0
+    mov r10, rax
+    mov rax, [rbp - 2792]
+    cmp rax, r10
+    je ir_while_end_373
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: pos
+    movsxd rax, r13d      ; From register (signed int32)
+    add rax, r10
+    mov [rbp - 2808], rax
+    mov rax, [rbp - 2808]
+    ; Store to variable: pos
+    mov r13d, eax       ; To register (int32/uint32)
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: col
+    movsxd rax, r14d      ; From register (signed int32)
+    add rax, r10
+    mov [rbp - 2816], rax
+    mov rax, [rbp - 2816]
+    ; Store to variable: col
+    mov r14d, eax       ; To register (int32/uint32)
+    jmp ir_while_372
+ir_while_end_373:
     ; Load variable: start
     movsxd rax, dword [rbp - 80]  ; From stack [rbp - 80]
     mov r10, rax
     ; Load variable: pos
     movsxd rax, r13d      ; From register (signed int32)
     sub rax, r10
-    mov [rbp - 2816], rax
+    mov [rbp - 2824], rax
+    ; IR call: keyword_type (3 args)
+    ; Load variable: source
+    mov rax, r15      ; From register
+    mov rcx, rax
+    ; Load variable: start
+    movsxd rax, dword [rbp - 80]  ; From stack [rbp - 80]
+    mov rdx, rax
+    mov rax, [rbp - 2824]
+    mov r8, rax
+    call keyword_type
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    mov [rbp - 2832], rax
     test r12, r12
     jnz ir_nonnull_377
 ir_trap_null_376:
@@ -5305,57 +5330,19 @@ ir_trap_null_376:
     add rsp, 32
     ; Unknown return type - assuming integer
 ir_nonnull_377:
-    mov rax, 8
+    mov rax, 0
     mov r10, rax
     ; Load variable: tok
     mov rax, r12      ; From register
     add rax, r10
-    mov [rbp - 2824], rax
-    mov rax, [rbp - 2816]
-    mov rcx, rax
-    mov rax, [rbp - 2824]
-    mov dword [rax], ecx
-    jmp ir_if_end_194
-ir_if_next_367:
-    ; IR call: is_digit (1 args)
-    ; Load variable: c
-    movsxd rax, ebx      ; From register (signed int32)
-    mov rcx, rax
-    call is_digit
-    ; Integer/pointer return value in rax
-    ; 32-bit return value already in eax
     mov [rbp - 2840], rax
-    mov rax, 0
-    mov r10, rax
+    mov rax, [rbp - 2832]
+    mov rcx, rax
     mov rax, [rbp - 2840]
-    cmp rax, r10
-    je ir_if_next_378
-    ; Load variable: pos
-    movsxd rax, r13d      ; From register (signed int32)
-    ; Store to variable: start
-    mov dword [rbp - 80], eax  ; To stack [rbp - 80]
-    mov rax, 1
-    mov r10, rax
-    ; Load variable: pos
-    movsxd rax, r13d      ; From register (signed int32)
-    add rax, r10
-    mov [rbp - 2856], rax
-    mov rax, [rbp - 2856]
-    ; Store to variable: pos
-    mov r13d, eax       ; To register (int32/uint32)
-    mov rax, 1
-    mov r10, rax
-    ; Load variable: col
-    movsxd rax, r14d      ; From register (signed int32)
-    add rax, r10
-    mov [rbp - 2864], rax
-    mov rax, [rbp - 2864]
-    ; Store to variable: col
-    mov r14d, eax       ; To register (int32/uint32)
-ir_while_379:
-    test r15, r15
-    jnz ir_nonnull_382
-ir_trap_null_381:
+    mov dword [rax], ecx
+    test r12, r12
+    jnz ir_nonnull_379
+ir_trap_null_378:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
@@ -5372,24 +5359,60 @@ ir_trap_null_381:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_382:
-    mov rax, 1
+ir_nonnull_379:
+    mov rax, 4
+    mov r10, rax
+    ; Load variable: tok
+    mov rax, r12      ; From register
+    add rax, r10
+    mov [rbp - 2856], rax
+    ; Load variable: start
+    movsxd rax, dword [rbp - 80]  ; From stack [rbp - 80]
+    mov rcx, rax
+    mov rax, [rbp - 2856]
+    mov dword [rax], ecx
+    ; Load variable: start
+    movsxd rax, dword [rbp - 80]  ; From stack [rbp - 80]
     mov r10, rax
     ; Load variable: pos
     movsxd rax, r13d      ; From register (signed int32)
-    imul rax, r10
+    sub rax, r10
     mov [rbp - 2872], rax
-    mov rax, [rbp - 2872]
+    test r12, r12
+    jnz ir_nonnull_381
+ir_trap_null_380:
+    ; IR call: puts (1 args)
+    sub rsp, 32
+    ; String literal (37 bytes)
+    lea rax, [rel Lstr_struct210]  ; Load string struct address
+    mov rcx, rax
+    call puts
+    add rsp, 32
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    ; IR call: exit (1 args)
+    sub rsp, 32
+    mov rax, 1
+    mov rcx, rax
+    call exit
+    add rsp, 32
+    ; Unknown return type - assuming integer
+ir_nonnull_381:
+    mov rax, 8
     mov r10, rax
-    ; Load variable: source
-    mov rax, r15      ; From register
+    ; Load variable: tok
+    mov rax, r12      ; From register
     add rax, r10
     mov [rbp - 2880], rax
+    mov rax, [rbp - 2872]
+    mov rcx, rax
     mov rax, [rbp - 2880]
-    movzx rax, byte [rax]
-    mov [rbp - 2888], rax
+    mov dword [rax], ecx
+    jmp ir_if_end_198
+ir_if_next_371:
     ; IR call: is_digit (1 args)
-    mov rax, [rbp - 2888]
+    ; Load variable: c
+    movsxd rax, ebx      ; From register (signed int32)
     mov rcx, rax
     call is_digit
     ; Integer/pointer return value in rax
@@ -5399,7 +5422,11 @@ ir_nonnull_382:
     mov r10, rax
     mov rax, [rbp - 2896]
     cmp rax, r10
-    je ir_while_end_380
+    je ir_if_next_382
+    ; Load variable: pos
+    movsxd rax, r13d      ; From register (signed int32)
+    ; Store to variable: start
+    mov dword [rbp - 80], eax  ; To stack [rbp - 80]
     mov rax, 1
     mov r10, rax
     ; Load variable: pos
@@ -5418,15 +5445,14 @@ ir_nonnull_382:
     mov rax, [rbp - 2920]
     ; Store to variable: col
     mov r14d, eax       ; To register (int32/uint32)
-    jmp ir_while_379
-ir_while_end_380:
+ir_while_383:
     test r15, r15
     jnz ir_nonnull_386
 ir_trap_null_385:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
-    lea rax, [rel Lstr_struct210]  ; Load string struct address
+    lea rax, [rel Lstr_struct212]  ; Load string struct address
     mov rcx, rax
     call puts
     add rsp, 32
@@ -5455,18 +5481,25 @@ ir_nonnull_386:
     mov rax, [rbp - 2936]
     movzx rax, byte [rax]
     mov [rbp - 2944], rax
-    mov rax, 46
-    mov r10, rax
+    ; IR call: is_digit (1 args)
     mov rax, [rbp - 2944]
+    mov rcx, rax
+    call is_digit
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    mov [rbp - 2952], rax
+    mov rax, 0
+    mov r10, rax
+    mov rax, [rbp - 2952]
     cmp rax, r10
-    jne ir_if_next_384
+    je ir_while_end_384
     mov rax, 1
     mov r10, rax
     ; Load variable: pos
     movsxd rax, r13d      ; From register (signed int32)
     add rax, r10
-    mov [rbp - 2960], rax
-    mov rax, [rbp - 2960]
+    mov [rbp - 2968], rax
+    mov rax, [rbp - 2968]
     ; Store to variable: pos
     mov r13d, eax       ; To register (int32/uint32)
     mov rax, 1
@@ -5474,18 +5507,19 @@ ir_nonnull_386:
     ; Load variable: col
     movsxd rax, r14d      ; From register (signed int32)
     add rax, r10
-    mov [rbp - 2968], rax
-    mov rax, [rbp - 2968]
+    mov [rbp - 2976], rax
+    mov rax, [rbp - 2976]
     ; Store to variable: col
     mov r14d, eax       ; To register (int32/uint32)
-ir_while_387:
+    jmp ir_while_383
+ir_while_end_384:
     test r15, r15
     jnz ir_nonnull_390
 ir_trap_null_389:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
-    lea rax, [rel Lstr_struct212]  ; Load string struct address
+    lea rax, [rel Lstr_struct214]  ; Load string struct address
     mov rcx, rax
     call puts
     add rsp, 32
@@ -5504,28 +5538,21 @@ ir_nonnull_390:
     ; Load variable: pos
     movsxd rax, r13d      ; From register (signed int32)
     imul rax, r10
-    mov [rbp - 2976], rax
-    mov rax, [rbp - 2976]
+    mov [rbp - 2984], rax
+    mov rax, [rbp - 2984]
     mov r10, rax
     ; Load variable: source
     mov rax, r15      ; From register
     add rax, r10
-    mov [rbp - 2984], rax
-    mov rax, [rbp - 2984]
-    movzx rax, byte [rax]
     mov [rbp - 2992], rax
-    ; IR call: is_digit (1 args)
     mov rax, [rbp - 2992]
-    mov rcx, rax
-    call is_digit
-    ; Integer/pointer return value in rax
-    ; 32-bit return value already in eax
+    movzx rax, byte [rax]
     mov [rbp - 3000], rax
-    mov rax, 0
+    mov rax, 46
     mov r10, rax
     mov rax, [rbp - 3000]
     cmp rax, r10
-    je ir_while_end_388
+    jne ir_if_next_388
     mov rax, 1
     mov r10, rax
     ; Load variable: pos
@@ -5544,18 +5571,14 @@ ir_nonnull_390:
     mov rax, [rbp - 3024]
     ; Store to variable: col
     mov r14d, eax       ; To register (int32/uint32)
-    jmp ir_while_387
-ir_while_end_388:
-    jmp ir_if_end_383
-ir_if_next_384:
-ir_if_end_383:
+ir_while_391:
     test r15, r15
     jnz ir_nonnull_394
 ir_trap_null_393:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
-    lea rax, [rel Lstr_struct214]  ; Load string struct address
+    lea rax, [rel Lstr_struct216]  ; Load string struct address
     mov rcx, rax
     call puts
     add rsp, 32
@@ -5584,18 +5607,25 @@ ir_nonnull_394:
     mov rax, [rbp - 3040]
     movzx rax, byte [rax]
     mov [rbp - 3048], rax
-    mov rax, 101
-    mov r10, rax
+    ; IR call: is_digit (1 args)
     mov rax, [rbp - 3048]
+    mov rcx, rax
+    call is_digit
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    mov [rbp - 3056], rax
+    mov rax, 0
+    mov r10, rax
+    mov rax, [rbp - 3056]
     cmp rax, r10
-    jne ir_if_next_392
+    je ir_while_end_392
     mov rax, 1
     mov r10, rax
     ; Load variable: pos
     movsxd rax, r13d      ; From register (signed int32)
     add rax, r10
-    mov [rbp - 3064], rax
-    mov rax, [rbp - 3064]
+    mov [rbp - 3072], rax
+    mov rax, [rbp - 3072]
     ; Store to variable: pos
     mov r13d, eax       ; To register (int32/uint32)
     mov rax, 1
@@ -5603,17 +5633,22 @@ ir_nonnull_394:
     ; Load variable: col
     movsxd rax, r14d      ; From register (signed int32)
     add rax, r10
-    mov [rbp - 3072], rax
-    mov rax, [rbp - 3072]
+    mov [rbp - 3080], rax
+    mov rax, [rbp - 3080]
     ; Store to variable: col
     mov r14d, eax       ; To register (int32/uint32)
+    jmp ir_while_391
+ir_while_end_392:
+    jmp ir_if_end_387
+ir_if_next_388:
+ir_if_end_387:
     test r15, r15
     jnz ir_nonnull_398
 ir_trap_null_397:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
-    lea rax, [rel Lstr_struct216]  ; Load string struct address
+    lea rax, [rel Lstr_struct218]  ; Load string struct address
     mov rcx, rax
     call puts
     add rsp, 32
@@ -5632,19 +5667,19 @@ ir_nonnull_398:
     ; Load variable: pos
     movsxd rax, r13d      ; From register (signed int32)
     imul rax, r10
-    mov [rbp - 3080], rax
-    mov rax, [rbp - 3080]
+    mov [rbp - 3088], rax
+    mov rax, [rbp - 3088]
     mov r10, rax
     ; Load variable: source
     mov rax, r15      ; From register
     add rax, r10
-    mov [rbp - 3088], rax
-    mov rax, [rbp - 3088]
-    movzx rax, byte [rax]
     mov [rbp - 3096], rax
-    mov rax, 43
-    mov r10, rax
     mov rax, [rbp - 3096]
+    movzx rax, byte [rax]
+    mov [rbp - 3104], rax
+    mov rax, 101
+    mov r10, rax
+    mov rax, [rbp - 3104]
     cmp rax, r10
     jne ir_if_next_396
     mov rax, 1
@@ -5652,8 +5687,8 @@ ir_nonnull_398:
     ; Load variable: pos
     movsxd rax, r13d      ; From register (signed int32)
     add rax, r10
-    mov [rbp - 3112], rax
-    mov rax, [rbp - 3112]
+    mov [rbp - 3120], rax
+    mov rax, [rbp - 3120]
     ; Store to variable: pos
     mov r13d, eax       ; To register (int32/uint32)
     mov rax, 1
@@ -5661,20 +5696,17 @@ ir_nonnull_398:
     ; Load variable: col
     movsxd rax, r14d      ; From register (signed int32)
     add rax, r10
-    mov [rbp - 3120], rax
-    mov rax, [rbp - 3120]
+    mov [rbp - 3128], rax
+    mov rax, [rbp - 3128]
     ; Store to variable: col
     mov r14d, eax       ; To register (int32/uint32)
-    jmp ir_if_end_395
-ir_if_next_396:
-ir_if_end_395:
     test r15, r15
     jnz ir_nonnull_402
 ir_trap_null_401:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
-    lea rax, [rel Lstr_struct218]  ; Load string struct address
+    lea rax, [rel Lstr_struct220]  ; Load string struct address
     mov rcx, rax
     call puts
     add rsp, 32
@@ -5693,19 +5725,19 @@ ir_nonnull_402:
     ; Load variable: pos
     movsxd rax, r13d      ; From register (signed int32)
     imul rax, r10
-    mov [rbp - 3128], rax
-    mov rax, [rbp - 3128]
+    mov [rbp - 3136], rax
+    mov rax, [rbp - 3136]
     mov r10, rax
     ; Load variable: source
     mov rax, r15      ; From register
     add rax, r10
-    mov [rbp - 3136], rax
-    mov rax, [rbp - 3136]
-    movzx rax, byte [rax]
     mov [rbp - 3144], rax
-    mov rax, 45
-    mov r10, rax
     mov rax, [rbp - 3144]
+    movzx rax, byte [rax]
+    mov [rbp - 3152], rax
+    mov rax, 43
+    mov r10, rax
+    mov rax, [rbp - 3152]
     cmp rax, r10
     jne ir_if_next_400
     mov rax, 1
@@ -5713,8 +5745,8 @@ ir_nonnull_402:
     ; Load variable: pos
     movsxd rax, r13d      ; From register (signed int32)
     add rax, r10
-    mov [rbp - 3160], rax
-    mov rax, [rbp - 3160]
+    mov [rbp - 3168], rax
+    mov rax, [rbp - 3168]
     ; Store to variable: pos
     mov r13d, eax       ; To register (int32/uint32)
     mov rax, 1
@@ -5722,21 +5754,20 @@ ir_nonnull_402:
     ; Load variable: col
     movsxd rax, r14d      ; From register (signed int32)
     add rax, r10
-    mov [rbp - 3168], rax
-    mov rax, [rbp - 3168]
+    mov [rbp - 3176], rax
+    mov rax, [rbp - 3176]
     ; Store to variable: col
     mov r14d, eax       ; To register (int32/uint32)
     jmp ir_if_end_399
 ir_if_next_400:
 ir_if_end_399:
-ir_while_403:
     test r15, r15
     jnz ir_nonnull_406
 ir_trap_null_405:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
-    lea rax, [rel Lstr_struct220]  ; Load string struct address
+    lea rax, [rel Lstr_struct222]  ; Load string struct address
     mov rcx, rax
     call puts
     add rsp, 32
@@ -5755,28 +5786,21 @@ ir_nonnull_406:
     ; Load variable: pos
     movsxd rax, r13d      ; From register (signed int32)
     imul rax, r10
-    mov [rbp - 3176], rax
-    mov rax, [rbp - 3176]
+    mov [rbp - 3184], rax
+    mov rax, [rbp - 3184]
     mov r10, rax
     ; Load variable: source
     mov rax, r15      ; From register
     add rax, r10
-    mov [rbp - 3184], rax
-    mov rax, [rbp - 3184]
-    movzx rax, byte [rax]
     mov [rbp - 3192], rax
-    ; IR call: is_digit (1 args)
     mov rax, [rbp - 3192]
-    mov rcx, rax
-    call is_digit
-    ; Integer/pointer return value in rax
-    ; 32-bit return value already in eax
+    movzx rax, byte [rax]
     mov [rbp - 3200], rax
-    mov rax, 0
+    mov rax, 45
     mov r10, rax
     mov rax, [rbp - 3200]
     cmp rax, r10
-    je ir_while_end_404
+    jne ir_if_next_404
     mov rax, 1
     mov r10, rax
     ; Load variable: pos
@@ -5795,43 +5819,11 @@ ir_nonnull_406:
     mov rax, [rbp - 3224]
     ; Store to variable: col
     mov r14d, eax       ; To register (int32/uint32)
-    jmp ir_while_403
-ir_while_end_404:
-    jmp ir_if_end_391
-ir_if_next_392:
-ir_if_end_391:
-    test r12, r12
-    jnz ir_nonnull_408
-ir_trap_null_407:
-    ; IR call: puts (1 args)
-    sub rsp, 32
-    ; String literal (37 bytes)
-    lea rax, [rel Lstr_struct222]  ; Load string struct address
-    mov rcx, rax
-    call puts
-    add rsp, 32
-    ; Integer/pointer return value in rax
-    ; 32-bit return value already in eax
-    ; IR call: exit (1 args)
-    sub rsp, 32
-    mov rax, 1
-    mov rcx, rax
-    call exit
-    add rsp, 32
-    ; Unknown return type - assuming integer
-ir_nonnull_408:
-    mov rax, 0
-    mov r10, rax
-    ; Load variable: tok
-    mov rax, r12      ; From register
-    add rax, r10
-    mov [rbp - 3232], rax
-    ; Load variable: TOKEN_NUMBER
-    movsxd rax, dword [rel TOKEN_NUMBER]  ; From global memory
-    mov rcx, rax
-    mov rax, [rbp - 3232]
-    mov dword [rax], ecx
-    test r12, r12
+    jmp ir_if_end_403
+ir_if_next_404:
+ir_if_end_403:
+ir_while_407:
+    test r15, r15
     jnz ir_nonnull_410
 ir_trap_null_409:
     ; IR call: puts (1 args)
@@ -5851,24 +5843,56 @@ ir_trap_null_409:
     add rsp, 32
     ; Unknown return type - assuming integer
 ir_nonnull_410:
-    mov rax, 4
-    mov r10, rax
-    ; Load variable: tok
-    mov rax, r12      ; From register
-    add rax, r10
-    mov [rbp - 3248], rax
-    ; Load variable: start
-    movsxd rax, dword [rbp - 80]  ; From stack [rbp - 80]
-    mov rcx, rax
-    mov rax, [rbp - 3248]
-    mov dword [rax], ecx
-    ; Load variable: start
-    movsxd rax, dword [rbp - 80]  ; From stack [rbp - 80]
+    mov rax, 1
     mov r10, rax
     ; Load variable: pos
     movsxd rax, r13d      ; From register (signed int32)
-    sub rax, r10
-    mov [rbp - 3264], rax
+    imul rax, r10
+    mov [rbp - 3232], rax
+    mov rax, [rbp - 3232]
+    mov r10, rax
+    ; Load variable: source
+    mov rax, r15      ; From register
+    add rax, r10
+    mov [rbp - 3240], rax
+    mov rax, [rbp - 3240]
+    movzx rax, byte [rax]
+    mov [rbp - 3248], rax
+    ; IR call: is_digit (1 args)
+    mov rax, [rbp - 3248]
+    mov rcx, rax
+    call is_digit
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    mov [rbp - 3256], rax
+    mov rax, 0
+    mov r10, rax
+    mov rax, [rbp - 3256]
+    cmp rax, r10
+    je ir_while_end_408
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: pos
+    movsxd rax, r13d      ; From register (signed int32)
+    add rax, r10
+    mov [rbp - 3272], rax
+    mov rax, [rbp - 3272]
+    ; Store to variable: pos
+    mov r13d, eax       ; To register (int32/uint32)
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: col
+    movsxd rax, r14d      ; From register (signed int32)
+    add rax, r10
+    mov [rbp - 3280], rax
+    mov rax, [rbp - 3280]
+    ; Store to variable: col
+    mov r14d, eax       ; To register (int32/uint32)
+    jmp ir_while_407
+ir_while_end_408:
+    jmp ir_if_end_395
+ir_if_next_396:
+ir_if_end_395:
     test r12, r12
     jnz ir_nonnull_412
 ir_trap_null_411:
@@ -5889,18 +5913,17 @@ ir_trap_null_411:
     add rsp, 32
     ; Unknown return type - assuming integer
 ir_nonnull_412:
-    mov rax, 8
+    mov rax, 0
     mov r10, rax
     ; Load variable: tok
     mov rax, r12      ; From register
     add rax, r10
-    mov [rbp - 3272], rax
-    mov rax, [rbp - 3264]
+    mov [rbp - 3288], rax
+    ; Load variable: TOKEN_NUMBER
+    movsxd rax, dword [rel TOKEN_NUMBER]  ; From global memory
     mov rcx, rax
-    mov rax, [rbp - 3272]
+    mov rax, [rbp - 3288]
     mov dword [rax], ecx
-    jmp ir_if_end_194
-ir_if_next_378:
     test r12, r12
     jnz ir_nonnull_414
 ir_trap_null_413:
@@ -5921,17 +5944,24 @@ ir_trap_null_413:
     add rsp, 32
     ; Unknown return type - assuming integer
 ir_nonnull_414:
-    mov rax, 0
+    mov rax, 4
     mov r10, rax
     ; Load variable: tok
     mov rax, r12      ; From register
     add rax, r10
-    mov [rbp - 3288], rax
-    ; Load variable: TOKEN_ERROR
-    movsxd rax, dword [rel TOKEN_ERROR]  ; From global memory
+    mov [rbp - 3304], rax
+    ; Load variable: start
+    movsxd rax, dword [rbp - 80]  ; From stack [rbp - 80]
     mov rcx, rax
-    mov rax, [rbp - 3288]
+    mov rax, [rbp - 3304]
     mov dword [rax], ecx
+    ; Load variable: start
+    movsxd rax, dword [rbp - 80]  ; From stack [rbp - 80]
+    mov r10, rax
+    ; Load variable: pos
+    movsxd rax, r13d      ; From register (signed int32)
+    sub rax, r10
+    mov [rbp - 3320], rax
     test r12, r12
     jnz ir_nonnull_416
 ir_trap_null_415:
@@ -5957,44 +5987,107 @@ ir_nonnull_416:
     ; Load variable: tok
     mov rax, r12      ; From register
     add rax, r10
-    mov [rbp - 3304], rax
+    mov [rbp - 3328], rax
+    mov rax, [rbp - 3320]
+    mov rcx, rax
+    mov rax, [rbp - 3328]
+    mov dword [rax], ecx
+    jmp ir_if_end_198
+ir_if_next_382:
+    test r12, r12
+    jnz ir_nonnull_418
+ir_trap_null_417:
+    ; IR call: puts (1 args)
+    sub rsp, 32
+    ; String literal (37 bytes)
+    lea rax, [rel Lstr_struct232]  ; Load string struct address
+    mov rcx, rax
+    call puts
+    add rsp, 32
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    ; IR call: exit (1 args)
+    sub rsp, 32
     mov rax, 1
     mov rcx, rax
-    mov rax, [rbp - 3304]
+    call exit
+    add rsp, 32
+    ; Unknown return type - assuming integer
+ir_nonnull_418:
+    mov rax, 0
+    mov r10, rax
+    ; Load variable: tok
+    mov rax, r12      ; From register
+    add rax, r10
+    mov [rbp - 3344], rax
+    ; Load variable: TOKEN_ERROR
+    movsxd rax, dword [rel TOKEN_ERROR]  ; From global memory
+    mov rcx, rax
+    mov rax, [rbp - 3344]
+    mov dword [rax], ecx
+    test r12, r12
+    jnz ir_nonnull_420
+ir_trap_null_419:
+    ; IR call: puts (1 args)
+    sub rsp, 32
+    ; String literal (37 bytes)
+    lea rax, [rel Lstr_struct234]  ; Load string struct address
+    mov rcx, rax
+    call puts
+    add rsp, 32
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    ; IR call: exit (1 args)
+    sub rsp, 32
+    mov rax, 1
+    mov rcx, rax
+    call exit
+    add rsp, 32
+    ; Unknown return type - assuming integer
+ir_nonnull_420:
+    mov rax, 8
+    mov r10, rax
+    ; Load variable: tok
+    mov rax, r12      ; From register
+    add rax, r10
+    mov [rbp - 3360], rax
+    mov rax, 1
+    mov rcx, rax
+    mov rax, [rbp - 3360]
     mov dword [rax], ecx
     mov rax, 1
     neg rax
-    mov [rbp - 3320], rax
-    mov rax, [rbp - 3320]
-    mov [rbp - 3328], rax
-    cmp qword [rbp - 3328], 0
-    jnz ir_errdefer_end_418
-ir_errdefer_ok_417:
-ir_errdefer_end_418:
-    mov rax, [rbp - 3320]
+    mov [rbp - 3376], rax
+    mov rax, [rbp - 3376]
+    mov [rbp - 3384], rax
+    cmp qword [rbp - 3384], 0
+    jnz ir_errdefer_end_422
+ir_errdefer_ok_421:
+ir_errdefer_end_422:
+    mov rax, [rbp - 3376]
     jmp Llex_all_exit
-ir_if_end_194:
+ir_if_end_198:
     mov rax, 1
     mov r10, rax
     ; Load variable: count
     movsxd rax, dword [rbp - 72]  ; From stack [rbp - 72]
     add rax, r10
-    mov [rbp - 3336], rax
-    mov rax, [rbp - 3336]
+    mov [rbp - 3392], rax
+    mov rax, [rbp - 3392]
     ; Store to variable: count
     mov dword [rbp - 72], eax  ; To stack [rbp - 72]
     jmp ir_while_128
 ir_while_end_129:
     mov rax, 1
     neg rax
-    mov [rbp - 3344], rax
-    mov rax, [rbp - 3344]
-    mov [rbp - 3352], rax
-    cmp qword [rbp - 3352], 0
-    jnz ir_errdefer_end_420
-ir_errdefer_ok_419:
-ir_errdefer_end_420:
-    mov rax, [rbp - 3344]
+    mov [rbp - 3400], rax
+    mov rax, [rbp - 3400]
+    mov [rbp - 3408], rax
+    cmp qword [rbp - 3408], 0
+    jnz ir_errdefer_end_424
+ir_errdefer_ok_423:
+ir_errdefer_end_424:
+    mov rax, [rbp - 3400]
     jmp Llex_all_exit
 Llex_all_exit:
     mov rbx, [rbp - 64]
@@ -6096,7 +6189,7 @@ read_file:
     pop rcx
     pop rbx
     pop rax
-ir_entry_421:
+ir_entry_425:
     mov rax, 0
     mov r10, rax
     ; Load variable: mode_r
@@ -6121,18 +6214,18 @@ ir_entry_421:
     ; Store to variable: f
     mov r13, rax       ; To register
     cmp r13, 0
-    jne ir_if_next_423
+    jne ir_if_next_427
     mov rax, 0
     mov [rbp - 72], rax
     cmp qword [rbp - 72], 0
-    jnz ir_errdefer_end_425
-ir_errdefer_ok_424:
-ir_errdefer_end_425:
+    jnz ir_errdefer_end_429
+ir_errdefer_ok_428:
+ir_errdefer_end_429:
     mov rax, 0
     jmp Lread_file_exit
-    jmp ir_if_end_422
-ir_if_next_423:
-ir_if_end_422:
+    jmp ir_if_end_426
+ir_if_next_427:
+ir_if_end_426:
     ; IR call: malloc (1 args)
     sub rsp, 32
     mov rax, 1048576
@@ -6145,7 +6238,7 @@ ir_if_end_422:
     ; Store to variable: buf
     mov r12, rax       ; To register
     cmp r12, 0
-    jne ir_if_next_427
+    jne ir_if_next_431
     ; IR call: fclose (1 args)
     sub rsp, 32
     ; Load variable: f
@@ -6159,14 +6252,14 @@ ir_if_end_422:
     mov rax, 0
     mov [rbp - 104], rax
     cmp qword [rbp - 104], 0
-    jnz ir_errdefer_end_429
-ir_errdefer_ok_428:
-ir_errdefer_end_429:
+    jnz ir_errdefer_end_433
+ir_errdefer_ok_432:
+ir_errdefer_end_433:
     mov rax, 0
     jmp Lread_file_exit
-    jmp ir_if_end_426
-ir_if_next_427:
-ir_if_end_426:
+    jmp ir_if_end_430
+ir_if_next_431:
+ir_if_end_430:
     ; IR call: fread (4 args)
     sub rsp, 32
     ; Load variable: buf
@@ -6187,12 +6280,12 @@ ir_if_end_426:
     ; Store to variable: n
     mov r14, rax       ; To register
     test r12, r12
-    jnz ir_nonnull_431
-ir_trap_null_430:
+    jnz ir_nonnull_435
+ir_trap_null_434:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
-    lea rax, [rel Lstr_struct232]  ; Load string struct address
+    lea rax, [rel Lstr_struct236]  ; Load string struct address
     mov rcx, rax
     call puts
     add rsp, 32
@@ -6205,7 +6298,7 @@ ir_trap_null_430:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_431:
+ir_nonnull_435:
     mov rax, 1
     mov r10, rax
     ; Load variable: n
@@ -6236,9 +6329,9 @@ ir_nonnull_431:
     mov rax, r12      ; From register
     mov [rbp - 152], rax
     cmp qword [rbp - 152], 0
-    jnz ir_errdefer_end_433
-ir_errdefer_ok_432:
-ir_errdefer_end_433:
+    jnz ir_errdefer_end_437
+ir_errdefer_ok_436:
+ir_errdefer_end_437:
     ; Load variable: buf
     mov rax, r12      ; From register
     jmp Lread_file_exit
@@ -6332,7 +6425,7 @@ write_trivial_masm:
     pop rcx
     pop rbx
     pop rax
-ir_entry_434:
+ir_entry_438:
     mov rax, 0
     mov r10, rax
     ; Load variable: mode_w
@@ -6357,18 +6450,18 @@ ir_entry_434:
     ; Store to variable: f
     mov r12, rax       ; To register
     cmp r12, 0
-    jne ir_if_next_436
+    jne ir_if_next_440
     mov rax, 0
     mov [rbp - 72], rax
     cmp qword [rbp - 72], 0
-    jnz ir_errdefer_end_438
-ir_errdefer_ok_437:
-ir_errdefer_end_438:
+    jnz ir_errdefer_end_442
+ir_errdefer_ok_441:
+ir_errdefer_end_442:
     mov rax, 0
     jmp Lwrite_trivial_masm_exit
-    jmp ir_if_end_435
-ir_if_next_436:
-ir_if_end_435:
+    jmp ir_if_end_439
+ir_if_next_440:
+ir_if_end_439:
     mov rax, 8
     mov r10, rax
     ; Load variable: trivial_prog
@@ -6420,24 +6513,24 @@ ir_if_end_435:
     ; 32-bit return value already in eax
     mov [rbp - 120], rax
     cmp r14, 0
-    jle ir_if_next_440
+    jle ir_if_next_444
     mov rax, 1
     mov [rbp - 136], rax
     cmp qword [rbp - 136], 0
-    jnz ir_errdefer_end_442
-ir_errdefer_ok_441:
-ir_errdefer_end_442:
+    jnz ir_errdefer_end_446
+ir_errdefer_ok_445:
+ir_errdefer_end_446:
     mov rax, 1
     jmp Lwrite_trivial_masm_exit
-    jmp ir_if_end_439
-ir_if_next_440:
-ir_if_end_439:
+    jmp ir_if_end_443
+ir_if_next_444:
+ir_if_end_443:
     mov rax, 0
     mov [rbp - 144], rax
     cmp qword [rbp - 144], 0
-    jnz ir_errdefer_end_444
-ir_errdefer_ok_443:
-ir_errdefer_end_444:
+    jnz ir_errdefer_end_448
+ir_errdefer_ok_447:
+ir_errdefer_end_448:
     mov rax, 0
     jmp Lwrite_trivial_masm_exit
 Lwrite_trivial_masm_exit:
@@ -6469,36 +6562,36 @@ token_is:
     movsxd rax, dword [rbp - 16]  ; From stack [rbp - 16]
     ; Store to variable: idx
     mov r12d, eax       ; To register (int32/uint32)
-ir_entry_445:
+ir_entry_449:
     cmp r12d, 0
-    jl ir_cond_done_448
-ir_cond_false_449:
+    jl ir_cond_done_452
+ir_cond_false_453:
     ; Load variable: count
     movsxd rax, dword [rbp - 24]  ; From stack [rbp - 24]
     mov r10, rax
     ; Load variable: idx
     movsxd rax, r12d      ; From register (signed int32)
     cmp rax, r10
-    jl ir_if_next_447
-ir_cond_done_448:
+    jl ir_if_next_451
+ir_cond_done_452:
     mov rax, 0
     mov [rbp - 64], rax
     cmp qword [rbp - 64], 0
-    jnz ir_errdefer_end_451
-ir_errdefer_ok_450:
-ir_errdefer_end_451:
+    jnz ir_errdefer_end_455
+ir_errdefer_ok_454:
+ir_errdefer_end_455:
     mov rax, 0
     jmp Ltoken_is_exit
-    jmp ir_if_end_446
-ir_if_next_447:
-ir_if_end_446:
+    jmp ir_if_end_450
+ir_if_next_451:
+ir_if_end_450:
     cmp qword [rbp - 8], 0
-    jnz ir_nonnull_455
-ir_trap_null_454:
+    jnz ir_nonnull_459
+ir_trap_null_458:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
-    lea rax, [rel Lstr_struct234]  ; Load string struct address
+    lea rax, [rel Lstr_struct238]  ; Load string struct address
     mov rcx, rax
     call puts
     add rsp, 32
@@ -6511,7 +6604,7 @@ ir_trap_null_454:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_455:
+ir_nonnull_459:
     mov rax, 8
     mov r10, rax
     ; Load variable: idx
@@ -6537,24 +6630,24 @@ ir_nonnull_455:
     mov r10, rax
     mov rax, [rbp - 96]
     cmp rax, r10
-    jne ir_if_next_453
+    jne ir_if_next_457
     mov rax, 1
     mov [rbp - 112], rax
     cmp qword [rbp - 112], 0
-    jnz ir_errdefer_end_457
-ir_errdefer_ok_456:
-ir_errdefer_end_457:
+    jnz ir_errdefer_end_461
+ir_errdefer_ok_460:
+ir_errdefer_end_461:
     mov rax, 1
     jmp Ltoken_is_exit
-    jmp ir_if_end_452
-ir_if_next_453:
-ir_if_end_452:
+    jmp ir_if_end_456
+ir_if_next_457:
+ir_if_end_456:
     mov rax, 0
     mov [rbp - 120], rax
     cmp qword [rbp - 120], 0
-    jnz ir_errdefer_end_459
-ir_errdefer_ok_458:
-ir_errdefer_end_459:
+    jnz ir_errdefer_end_463
+ir_errdefer_ok_462:
+ir_errdefer_end_463:
     mov rax, 0
     jmp Ltoken_is_exit
 Ltoken_is_exit:
@@ -6580,21 +6673,21 @@ parse_uint:
     mov [rbp - 32], r12
     mov [rbp - 40], r13
     mov [rbp - 48], r14
-ir_entry_460:
+ir_entry_464:
     mov rax, 0
     ; Store to variable: i
     mov r12d, eax       ; To register (int32/uint32)
     mov rax, 0
     ; Store to variable: v
     mov r13d, eax       ; To register (int32/uint32)
-ir_while_461:
+ir_while_465:
     ; Load variable: len
     movsxd rax, dword [rbp - 24]  ; From stack [rbp - 24]
     mov r10, rax
     ; Load variable: i
     movsxd rax, r12d      ; From register (signed int32)
     cmp rax, r10
-    jge ir_while_end_462
+    jge ir_while_end_466
     ; Load variable: i
     movsxd rax, r12d      ; From register (signed int32)
     mov r10, rax
@@ -6603,12 +6696,12 @@ ir_while_461:
     add rax, r10
     mov [rbp - 64], rax
     cmp qword [rbp - 8], 0
-    jnz ir_nonnull_464
-ir_trap_null_463:
+    jnz ir_nonnull_468
+ir_trap_null_467:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
-    lea rax, [rel Lstr_struct236]  ; Load string struct address
+    lea rax, [rel Lstr_struct240]  ; Load string struct address
     mov rcx, rax
     call puts
     add rsp, 32
@@ -6621,7 +6714,7 @@ ir_trap_null_463:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_464:
+ir_nonnull_468:
     mov rax, 1
     mov r10, rax
     mov rax, [rbp - 64]
@@ -6640,25 +6733,25 @@ ir_nonnull_464:
     ; Store to variable: c
     mov r14d, eax       ; To register (int32/uint32)
     cmp r14d, 48
-    jl ir_cond_done_467
-ir_cond_false_468:
+    jl ir_cond_done_471
+ir_cond_false_472:
     cmp r14d, 57
-    jle ir_if_next_466
-ir_cond_done_467:
+    jle ir_if_next_470
+ir_cond_done_471:
     mov rax, 1
     neg rax
     mov [rbp - 112], rax
     mov rax, [rbp - 112]
     mov [rbp - 120], rax
     cmp qword [rbp - 120], 0
-    jnz ir_errdefer_end_470
-ir_errdefer_ok_469:
-ir_errdefer_end_470:
+    jnz ir_errdefer_end_474
+ir_errdefer_ok_473:
+ir_errdefer_end_474:
     mov rax, [rbp - 112]
     jmp Lparse_uint_exit
-    jmp ir_if_end_465
-ir_if_next_466:
-ir_if_end_465:
+    jmp ir_if_end_469
+ir_if_next_470:
+ir_if_end_469:
     mov rax, 10
     mov r10, rax
     ; Load variable: v
@@ -6688,15 +6781,15 @@ ir_if_end_465:
     mov rax, [rbp - 152]
     ; Store to variable: i
     mov r12d, eax       ; To register (int32/uint32)
-    jmp ir_while_461
-ir_while_end_462:
+    jmp ir_while_465
+ir_while_end_466:
     ; Load variable: v
     movsxd rax, r13d      ; From register (signed int32)
     mov [rbp - 160], rax
     cmp qword [rbp - 160], 0
-    jnz ir_errdefer_end_472
-ir_errdefer_ok_471:
-ir_errdefer_end_472:
+    jnz ir_errdefer_end_476
+ir_errdefer_ok_475:
+ir_errdefer_end_476:
     ; Load variable: v
     movsxd rax, r13d      ; From register (signed int32)
     jmp Lparse_uint_exit
@@ -6709,19 +6802,1997 @@ Lparse_uint_exit:
     pop rbp         ; Restore old base pointer
     ret               ; Return to caller
 
-global find_return_number
+global skip_ws
 
-find_return_number:
+skip_ws:
     push rbp        ; Save old base pointer
     mov rbp, rsp  ; Set new base pointer
-    sub rsp, 2224    ; Allocate 2224 bytes on stack (aligned)
-    ; Registering 1 function parameters
+    sub rsp, 480    ; Allocate 480 bytes on stack (aligned)
+    ; Registering 2 function parameters
     mov [rbp - 8], rcx  ; Home param 'source'
     ; Parameter 'source' arrived in register rcx
-    mov [rbp - 16], r12
-    mov [rbp - 24], r13
-    mov [rbp - 32], r14
-    mov [rbp - 40], r15
+    mov [rbp - 16], rdx  ; Home param 'pos'
+    ; Parameter 'pos' arrived in register rdx
+    mov [rbp - 24], r12
+    mov [rbp - 32], r13
+    ; Load variable: source
+    mov rax, qword [rbp - 8]  ; From stack [rbp - 8]
+    ; Store to variable: source
+    mov r13, rax       ; To register
+ir_entry_477:
+    ; Load variable: pos
+    movsxd rax, dword [rbp - 16]  ; From stack [rbp - 16]
+    ; Store to variable: p
+    mov r12d, eax       ; To register (int32/uint32)
+ir_while_478:
+    test r13, r13
+    jnz ir_nonnull_482
+ir_trap_null_481:
+    ; IR call: puts (1 args)
+    sub rsp, 32
+    ; String literal (37 bytes)
+    lea rax, [rel Lstr_struct242]  ; Load string struct address
+    mov rcx, rax
+    call puts
+    add rsp, 32
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    ; IR call: exit (1 args)
+    sub rsp, 32
+    mov rax, 1
+    mov rcx, rax
+    call exit
+    add rsp, 32
+    ; Unknown return type - assuming integer
+ir_nonnull_482:
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: p
+    movsxd rax, r12d      ; From register (signed int32)
+    imul rax, r10
+    mov [rbp - 40], rax
+    mov rax, [rbp - 40]
+    mov r10, rax
+    ; Load variable: source
+    mov rax, r13      ; From register
+    add rax, r10
+    mov [rbp - 48], rax
+    mov rax, [rbp - 48]
+    movzx rax, byte [rax]
+    mov [rbp - 56], rax
+    mov rax, 32
+    mov r10, rax
+    mov rax, [rbp - 56]
+    cmp rax, r10
+    je ir_cond_done_480
+ir_cond_false_483:
+    test r13, r13
+    jnz ir_nonnull_485
+ir_trap_null_484:
+    ; IR call: puts (1 args)
+    sub rsp, 32
+    ; String literal (37 bytes)
+    lea rax, [rel Lstr_struct244]  ; Load string struct address
+    mov rcx, rax
+    call puts
+    add rsp, 32
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    ; IR call: exit (1 args)
+    sub rsp, 32
+    mov rax, 1
+    mov rcx, rax
+    call exit
+    add rsp, 32
+    ; Unknown return type - assuming integer
+ir_nonnull_485:
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: p
+    movsxd rax, r12d      ; From register (signed int32)
+    imul rax, r10
+    mov [rbp - 72], rax
+    mov rax, [rbp - 72]
+    mov r10, rax
+    ; Load variable: source
+    mov rax, r13      ; From register
+    add rax, r10
+    mov [rbp - 80], rax
+    mov rax, [rbp - 80]
+    movzx rax, byte [rax]
+    mov [rbp - 88], rax
+    mov rax, 9
+    mov r10, rax
+    mov rax, [rbp - 88]
+    cmp rax, r10
+    je ir_cond_done_480
+ir_cond_false_486:
+    test r13, r13
+    jnz ir_nonnull_488
+ir_trap_null_487:
+    ; IR call: puts (1 args)
+    sub rsp, 32
+    ; String literal (37 bytes)
+    lea rax, [rel Lstr_struct246]  ; Load string struct address
+    mov rcx, rax
+    call puts
+    add rsp, 32
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    ; IR call: exit (1 args)
+    sub rsp, 32
+    mov rax, 1
+    mov rcx, rax
+    call exit
+    add rsp, 32
+    ; Unknown return type - assuming integer
+ir_nonnull_488:
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: p
+    movsxd rax, r12d      ; From register (signed int32)
+    imul rax, r10
+    mov [rbp - 104], rax
+    mov rax, [rbp - 104]
+    mov r10, rax
+    ; Load variable: source
+    mov rax, r13      ; From register
+    add rax, r10
+    mov [rbp - 112], rax
+    mov rax, [rbp - 112]
+    movzx rax, byte [rax]
+    mov [rbp - 120], rax
+    mov rax, 13
+    mov r10, rax
+    mov rax, [rbp - 120]
+    cmp rax, r10
+    je ir_cond_done_480
+ir_cond_false_489:
+    test r13, r13
+    jnz ir_nonnull_491
+ir_trap_null_490:
+    ; IR call: puts (1 args)
+    sub rsp, 32
+    ; String literal (37 bytes)
+    lea rax, [rel Lstr_struct248]  ; Load string struct address
+    mov rcx, rax
+    call puts
+    add rsp, 32
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    ; IR call: exit (1 args)
+    sub rsp, 32
+    mov rax, 1
+    mov rcx, rax
+    call exit
+    add rsp, 32
+    ; Unknown return type - assuming integer
+ir_nonnull_491:
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: p
+    movsxd rax, r12d      ; From register (signed int32)
+    imul rax, r10
+    mov [rbp - 136], rax
+    mov rax, [rbp - 136]
+    mov r10, rax
+    ; Load variable: source
+    mov rax, r13      ; From register
+    add rax, r10
+    mov [rbp - 144], rax
+    mov rax, [rbp - 144]
+    movzx rax, byte [rax]
+    mov [rbp - 152], rax
+    mov rax, 10
+    mov r10, rax
+    mov rax, [rbp - 152]
+    cmp rax, r10
+    jne ir_while_end_479
+ir_cond_done_480:
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: p
+    movsxd rax, r12d      ; From register (signed int32)
+    add rax, r10
+    mov [rbp - 168], rax
+    mov rax, [rbp - 168]
+    ; Store to variable: p
+    mov r12d, eax       ; To register (int32/uint32)
+    jmp ir_while_478
+ir_while_end_479:
+    ; Load variable: p
+    movsxd rax, r12d      ; From register (signed int32)
+    mov [rbp - 176], rax
+    cmp qword [rbp - 176], 0
+    jnz ir_errdefer_end_493
+ir_errdefer_ok_492:
+ir_errdefer_end_493:
+    ; Load variable: p
+    movsxd rax, r12d      ; From register (signed int32)
+    jmp Lskip_ws_exit
+Lskip_ws_exit:
+    mov r13, [rbp - 32]
+    mov r12, [rbp - 24]
+    ; Function epilogue
+    mov rsp, rbp  ; Restore stack pointer
+    pop rbp         ; Restore old base pointer
+    ret               ; Return to caller
+
+global parse_factor
+
+parse_factor:
+    push rbp        ; Save old base pointer
+    mov rbp, rsp  ; Set new base pointer
+    sub rsp, 1760    ; Allocate 1760 bytes on stack (aligned)
+    ; Registering 3 function parameters
+    mov [rbp - 8], rcx  ; Home param 'source'
+    ; Parameter 'source' arrived in register rcx
+    mov [rbp - 16], rdx  ; Home param 'pos_out'
+    ; Parameter 'pos_out' arrived in register rdx
+    mov [rbp - 24], r8  ; Home param 'ok_out'
+    ; Parameter 'ok_out' arrived in register r8
+    mov [rbp - 32], r12
+    mov [rbp - 40], r13
+    mov [rbp - 48], r14
+    mov [rbp - 56], r15
+    mov [rbp - 64], rbx
+    ; Spill GPRs so GC sees register-held roots
+    push rax
+    push rbx
+    push rcx
+    push rdx
+    push rsi
+    push rdi
+    push r8
+    push r9
+    push r10
+    push r11
+    push r12
+    push r13
+    push r14
+    push r15
+    ; Spill XMM registers for conservative root scan
+    sub rsp, 256
+    movdqu [rsp + 0], xmm0
+    movdqu [rsp + 16], xmm1
+    movdqu [rsp + 32], xmm2
+    movdqu [rsp + 48], xmm3
+    movdqu [rsp + 64], xmm4
+    movdqu [rsp + 80], xmm5
+    movdqu [rsp + 96], xmm6
+    movdqu [rsp + 112], xmm7
+    movdqu [rsp + 128], xmm8
+    movdqu [rsp + 144], xmm9
+    movdqu [rsp + 160], xmm10
+    movdqu [rsp + 176], xmm11
+    movdqu [rsp + 192], xmm12
+    movdqu [rsp + 208], xmm13
+    movdqu [rsp + 224], xmm14
+    movdqu [rsp + 240], xmm15
+    sub rsp, 32
+    mov rcx, rsp
+    extern gc_safepoint
+    call gc_safepoint
+    add rsp, 32
+    movdqu xmm0, [rsp + 0]
+    movdqu xmm1, [rsp + 16]
+    movdqu xmm2, [rsp + 32]
+    movdqu xmm3, [rsp + 48]
+    movdqu xmm4, [rsp + 64]
+    movdqu xmm5, [rsp + 80]
+    movdqu xmm6, [rsp + 96]
+    movdqu xmm7, [rsp + 112]
+    movdqu xmm8, [rsp + 128]
+    movdqu xmm9, [rsp + 144]
+    movdqu xmm10, [rsp + 160]
+    movdqu xmm11, [rsp + 176]
+    movdqu xmm12, [rsp + 192]
+    movdqu xmm13, [rsp + 208]
+    movdqu xmm14, [rsp + 224]
+    movdqu xmm15, [rsp + 240]
+    add rsp, 256
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop r11
+    pop r10
+    pop r9
+    pop r8
+    pop rdi
+    pop rsi
+    pop rdx
+    pop rcx
+    pop rbx
+    pop rax
+    ; Load variable: pos_out
+    mov rax, qword [rbp - 16]  ; From stack [rbp - 16]
+    ; Store to variable: pos_out
+    mov r13, rax       ; To register
+    ; Load variable: source
+    mov rax, qword [rbp - 8]  ; From stack [rbp - 8]
+    ; Store to variable: source
+    mov r14, rax       ; To register
+    ; Load variable: ok_out
+    mov rax, qword [rbp - 24]  ; From stack [rbp - 24]
+    ; Store to variable: ok_out
+    mov r15, rax       ; To register
+ir_entry_494:
+    test r13, r13
+    jnz ir_nonnull_496
+ir_trap_null_495:
+    ; IR call: puts (1 args)
+    sub rsp, 32
+    ; String literal (37 bytes)
+    lea rax, [rel Lstr_struct250]  ; Load string struct address
+    mov rcx, rax
+    call puts
+    add rsp, 32
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    ; IR call: exit (1 args)
+    sub rsp, 32
+    mov rax, 1
+    mov rcx, rax
+    call exit
+    add rsp, 32
+    ; Unknown return type - assuming integer
+ir_nonnull_496:
+    mov rax, 4
+    mov r10, rax
+    mov rax, 0
+    imul rax, r10
+    mov [rbp - 88], rax
+    mov rax, [rbp - 88]
+    mov r10, rax
+    ; Load variable: pos_out
+    mov rax, r13      ; From register
+    add rax, r10
+    mov [rbp - 96], rax
+    mov rax, [rbp - 96]
+    mov eax, dword [rax]
+    mov [rbp - 104], rax
+    ; IR call: skip_ws (2 args)
+    ; Load variable: source
+    mov rax, r14      ; From register
+    mov rcx, rax
+    mov rax, [rbp - 104]
+    mov rdx, rax
+    call skip_ws
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    mov [rbp - 112], rax
+    mov rax, [rbp - 112]
+    ; Store to variable: p
+    mov r12d, eax       ; To register (int32/uint32)
+    test r14, r14
+    jnz ir_nonnull_498
+ir_trap_null_497:
+    ; IR call: puts (1 args)
+    sub rsp, 32
+    ; String literal (37 bytes)
+    lea rax, [rel Lstr_struct252]  ; Load string struct address
+    mov rcx, rax
+    call puts
+    add rsp, 32
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    ; IR call: exit (1 args)
+    sub rsp, 32
+    mov rax, 1
+    mov rcx, rax
+    call exit
+    add rsp, 32
+    ; Unknown return type - assuming integer
+ir_nonnull_498:
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: p
+    movsxd rax, r12d      ; From register (signed int32)
+    imul rax, r10
+    mov [rbp - 120], rax
+    mov rax, [rbp - 120]
+    mov r10, rax
+    ; Load variable: source
+    mov rax, r14      ; From register
+    add rax, r10
+    mov [rbp - 128], rax
+    mov rax, [rbp - 128]
+    movzx rax, byte [rax]
+    mov [rbp - 136], rax
+    mov rax, [rbp - 136]
+    ; Store to variable: c
+    mov ebx, eax       ; To register (int32/uint32)
+    cmp ebx, 45
+    jne ir_if_next_500
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: p
+    movsxd rax, r12d      ; From register (signed int32)
+    add rax, r10
+    mov [rbp - 152], rax
+    mov rax, [rbp - 152]
+    ; Store to variable: p
+    mov r12d, eax       ; To register (int32/uint32)
+    test r13, r13
+    jnz ir_nonnull_502
+ir_trap_null_501:
+    ; IR call: puts (1 args)
+    sub rsp, 32
+    ; String literal (37 bytes)
+    lea rax, [rel Lstr_struct254]  ; Load string struct address
+    mov rcx, rax
+    call puts
+    add rsp, 32
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    ; IR call: exit (1 args)
+    sub rsp, 32
+    mov rax, 1
+    mov rcx, rax
+    call exit
+    add rsp, 32
+    ; Unknown return type - assuming integer
+ir_nonnull_502:
+    mov rax, 4
+    mov r10, rax
+    mov rax, 0
+    imul rax, r10
+    mov [rbp - 160], rax
+    mov rax, [rbp - 160]
+    mov r10, rax
+    ; Load variable: pos_out
+    mov rax, r13      ; From register
+    add rax, r10
+    mov [rbp - 168], rax
+    ; Load variable: p
+    movsxd rax, r12d      ; From register (signed int32)
+    mov rcx, rax
+    mov rax, [rbp - 168]
+    mov dword [rax], ecx
+    ; IR call: parse_factor (3 args)
+    ; Load variable: source
+    mov rax, r14      ; From register
+    mov rcx, rax
+    ; Load variable: pos_out
+    mov rax, r13      ; From register
+    mov rdx, rax
+    ; Load variable: ok_out
+    mov rax, r15      ; From register
+    mov r8, rax
+    call parse_factor
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    mov [rbp - 184], rax
+    mov rax, [rbp - 184]
+    ; Store to variable: vneg
+    mov dword [rbp - 68], eax  ; To stack [rbp - 68]
+    test r15, r15
+    jnz ir_nonnull_506
+ir_trap_null_505:
+    ; IR call: puts (1 args)
+    sub rsp, 32
+    ; String literal (37 bytes)
+    lea rax, [rel Lstr_struct256]  ; Load string struct address
+    mov rcx, rax
+    call puts
+    add rsp, 32
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    ; IR call: exit (1 args)
+    sub rsp, 32
+    mov rax, 1
+    mov rcx, rax
+    call exit
+    add rsp, 32
+    ; Unknown return type - assuming integer
+ir_nonnull_506:
+    mov rax, 4
+    mov r10, rax
+    mov rax, 0
+    imul rax, r10
+    mov [rbp - 192], rax
+    mov rax, [rbp - 192]
+    mov r10, rax
+    ; Load variable: ok_out
+    mov rax, r15      ; From register
+    add rax, r10
+    mov [rbp - 200], rax
+    mov rax, [rbp - 200]
+    mov eax, dword [rax]
+    mov [rbp - 208], rax
+    mov rax, 0
+    mov r10, rax
+    mov rax, [rbp - 208]
+    cmp rax, r10
+    jne ir_if_next_504
+    mov rax, 0
+    mov [rbp - 224], rax
+    cmp qword [rbp - 224], 0
+    jnz ir_errdefer_end_508
+ir_errdefer_ok_507:
+ir_errdefer_end_508:
+    mov rax, 0
+    jmp Lparse_factor_exit
+    jmp ir_if_end_503
+ir_if_next_504:
+ir_if_end_503:
+    ; Load variable: vneg
+    movsxd rax, dword [rbp - 68]  ; From stack [rbp - 68]
+    mov r10, rax
+    mov rax, 0
+    sub rax, r10
+    mov [rbp - 232], rax
+    mov rax, [rbp - 232]
+    mov [rbp - 240], rax
+    cmp qword [rbp - 240], 0
+    jnz ir_errdefer_end_510
+ir_errdefer_ok_509:
+ir_errdefer_end_510:
+    mov rax, [rbp - 232]
+    jmp Lparse_factor_exit
+    jmp ir_if_end_499
+ir_if_next_500:
+ir_if_end_499:
+    cmp ebx, 40
+    jne ir_if_next_512
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: p
+    movsxd rax, r12d      ; From register (signed int32)
+    add rax, r10
+    mov [rbp - 256], rax
+    mov rax, [rbp - 256]
+    ; Store to variable: p
+    mov r12d, eax       ; To register (int32/uint32)
+    test r13, r13
+    jnz ir_nonnull_514
+ir_trap_null_513:
+    ; IR call: puts (1 args)
+    sub rsp, 32
+    ; String literal (37 bytes)
+    lea rax, [rel Lstr_struct258]  ; Load string struct address
+    mov rcx, rax
+    call puts
+    add rsp, 32
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    ; IR call: exit (1 args)
+    sub rsp, 32
+    mov rax, 1
+    mov rcx, rax
+    call exit
+    add rsp, 32
+    ; Unknown return type - assuming integer
+ir_nonnull_514:
+    mov rax, 4
+    mov r10, rax
+    mov rax, 0
+    imul rax, r10
+    mov [rbp - 264], rax
+    mov rax, [rbp - 264]
+    mov r10, rax
+    ; Load variable: pos_out
+    mov rax, r13      ; From register
+    add rax, r10
+    mov [rbp - 272], rax
+    ; Load variable: p
+    movsxd rax, r12d      ; From register (signed int32)
+    mov rcx, rax
+    mov rax, [rbp - 272]
+    mov dword [rax], ecx
+    ; IR call: parse_expression (3 args)
+    ; Load variable: source
+    mov rax, r14      ; From register
+    mov rcx, rax
+    ; Load variable: pos_out
+    mov rax, r13      ; From register
+    mov rdx, rax
+    ; Load variable: ok_out
+    mov rax, r15      ; From register
+    mov r8, rax
+    call parse_expression
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    mov [rbp - 288], rax
+    mov rax, [rbp - 288]
+    ; Store to variable: vparen
+    mov dword [rbp - 72], eax  ; To stack [rbp - 72]
+    test r15, r15
+    jnz ir_nonnull_518
+ir_trap_null_517:
+    ; IR call: puts (1 args)
+    sub rsp, 32
+    ; String literal (37 bytes)
+    lea rax, [rel Lstr_struct260]  ; Load string struct address
+    mov rcx, rax
+    call puts
+    add rsp, 32
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    ; IR call: exit (1 args)
+    sub rsp, 32
+    mov rax, 1
+    mov rcx, rax
+    call exit
+    add rsp, 32
+    ; Unknown return type - assuming integer
+ir_nonnull_518:
+    mov rax, 4
+    mov r10, rax
+    mov rax, 0
+    imul rax, r10
+    mov [rbp - 296], rax
+    mov rax, [rbp - 296]
+    mov r10, rax
+    ; Load variable: ok_out
+    mov rax, r15      ; From register
+    add rax, r10
+    mov [rbp - 304], rax
+    mov rax, [rbp - 304]
+    mov eax, dword [rax]
+    mov [rbp - 312], rax
+    mov rax, 0
+    mov r10, rax
+    mov rax, [rbp - 312]
+    cmp rax, r10
+    jne ir_if_next_516
+    mov rax, 0
+    mov [rbp - 328], rax
+    cmp qword [rbp - 328], 0
+    jnz ir_errdefer_end_520
+ir_errdefer_ok_519:
+ir_errdefer_end_520:
+    mov rax, 0
+    jmp Lparse_factor_exit
+    jmp ir_if_end_515
+ir_if_next_516:
+ir_if_end_515:
+    test r13, r13
+    jnz ir_nonnull_522
+ir_trap_null_521:
+    ; IR call: puts (1 args)
+    sub rsp, 32
+    ; String literal (37 bytes)
+    lea rax, [rel Lstr_struct262]  ; Load string struct address
+    mov rcx, rax
+    call puts
+    add rsp, 32
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    ; IR call: exit (1 args)
+    sub rsp, 32
+    mov rax, 1
+    mov rcx, rax
+    call exit
+    add rsp, 32
+    ; Unknown return type - assuming integer
+ir_nonnull_522:
+    mov rax, 4
+    mov r10, rax
+    mov rax, 0
+    imul rax, r10
+    mov [rbp - 336], rax
+    mov rax, [rbp - 336]
+    mov r10, rax
+    ; Load variable: pos_out
+    mov rax, r13      ; From register
+    add rax, r10
+    mov [rbp - 344], rax
+    mov rax, [rbp - 344]
+    mov eax, dword [rax]
+    mov [rbp - 352], rax
+    ; IR call: skip_ws (2 args)
+    ; Load variable: source
+    mov rax, r14      ; From register
+    mov rcx, rax
+    mov rax, [rbp - 352]
+    mov rdx, rax
+    call skip_ws
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    mov [rbp - 360], rax
+    mov rax, [rbp - 360]
+    ; Store to variable: p
+    mov r12d, eax       ; To register (int32/uint32)
+    test r14, r14
+    jnz ir_nonnull_526
+ir_trap_null_525:
+    ; IR call: puts (1 args)
+    sub rsp, 32
+    ; String literal (37 bytes)
+    lea rax, [rel Lstr_struct264]  ; Load string struct address
+    mov rcx, rax
+    call puts
+    add rsp, 32
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    ; IR call: exit (1 args)
+    sub rsp, 32
+    mov rax, 1
+    mov rcx, rax
+    call exit
+    add rsp, 32
+    ; Unknown return type - assuming integer
+ir_nonnull_526:
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: p
+    movsxd rax, r12d      ; From register (signed int32)
+    imul rax, r10
+    mov [rbp - 368], rax
+    mov rax, [rbp - 368]
+    mov r10, rax
+    ; Load variable: source
+    mov rax, r14      ; From register
+    add rax, r10
+    mov [rbp - 376], rax
+    mov rax, [rbp - 376]
+    movzx rax, byte [rax]
+    mov [rbp - 384], rax
+    mov rax, 41
+    mov r10, rax
+    mov rax, [rbp - 384]
+    cmp rax, r10
+    je ir_if_next_524
+    test r15, r15
+    jnz ir_nonnull_528
+ir_trap_null_527:
+    ; IR call: puts (1 args)
+    sub rsp, 32
+    ; String literal (37 bytes)
+    lea rax, [rel Lstr_struct266]  ; Load string struct address
+    mov rcx, rax
+    call puts
+    add rsp, 32
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    ; IR call: exit (1 args)
+    sub rsp, 32
+    mov rax, 1
+    mov rcx, rax
+    call exit
+    add rsp, 32
+    ; Unknown return type - assuming integer
+ir_nonnull_528:
+    mov rax, 4
+    mov r10, rax
+    mov rax, 0
+    imul rax, r10
+    mov [rbp - 400], rax
+    mov rax, [rbp - 400]
+    mov r10, rax
+    ; Load variable: ok_out
+    mov rax, r15      ; From register
+    add rax, r10
+    mov [rbp - 408], rax
+    mov rax, 0
+    mov rcx, rax
+    mov rax, [rbp - 408]
+    mov dword [rax], ecx
+    mov rax, 0
+    mov [rbp - 424], rax
+    cmp qword [rbp - 424], 0
+    jnz ir_errdefer_end_530
+ir_errdefer_ok_529:
+ir_errdefer_end_530:
+    mov rax, 0
+    jmp Lparse_factor_exit
+    jmp ir_if_end_523
+ir_if_next_524:
+ir_if_end_523:
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: p
+    movsxd rax, r12d      ; From register (signed int32)
+    add rax, r10
+    mov [rbp - 432], rax
+    mov rax, [rbp - 432]
+    ; Store to variable: p
+    mov r12d, eax       ; To register (int32/uint32)
+    test r13, r13
+    jnz ir_nonnull_532
+ir_trap_null_531:
+    ; IR call: puts (1 args)
+    sub rsp, 32
+    ; String literal (37 bytes)
+    lea rax, [rel Lstr_struct268]  ; Load string struct address
+    mov rcx, rax
+    call puts
+    add rsp, 32
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    ; IR call: exit (1 args)
+    sub rsp, 32
+    mov rax, 1
+    mov rcx, rax
+    call exit
+    add rsp, 32
+    ; Unknown return type - assuming integer
+ir_nonnull_532:
+    mov rax, 4
+    mov r10, rax
+    mov rax, 0
+    imul rax, r10
+    mov [rbp - 440], rax
+    mov rax, [rbp - 440]
+    mov r10, rax
+    ; Load variable: pos_out
+    mov rax, r13      ; From register
+    add rax, r10
+    mov [rbp - 448], rax
+    ; Load variable: p
+    movsxd rax, r12d      ; From register (signed int32)
+    mov rcx, rax
+    mov rax, [rbp - 448]
+    mov dword [rax], ecx
+    ; Load variable: vparen
+    movsxd rax, dword [rbp - 72]  ; From stack [rbp - 72]
+    mov [rbp - 464], rax
+    cmp qword [rbp - 464], 0
+    jnz ir_errdefer_end_534
+ir_errdefer_ok_533:
+ir_errdefer_end_534:
+    ; Load variable: vparen
+    movsxd rax, dword [rbp - 72]  ; From stack [rbp - 72]
+    jmp Lparse_factor_exit
+    jmp ir_if_end_511
+ir_if_next_512:
+ir_if_end_511:
+    cmp ebx, 48
+    jl ir_if_next_536
+    cmp ebx, 57
+    jg ir_if_next_536
+    ; Load variable: p
+    movsxd rax, r12d      ; From register (signed int32)
+    ; Store to variable: start
+    mov dword [rbp - 76], eax  ; To stack [rbp - 76]
+ir_while_537:
+    test r14, r14
+    jnz ir_nonnull_540
+ir_trap_null_539:
+    ; IR call: puts (1 args)
+    sub rsp, 32
+    ; String literal (37 bytes)
+    lea rax, [rel Lstr_struct270]  ; Load string struct address
+    mov rcx, rax
+    call puts
+    add rsp, 32
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    ; IR call: exit (1 args)
+    sub rsp, 32
+    mov rax, 1
+    mov rcx, rax
+    call exit
+    add rsp, 32
+    ; Unknown return type - assuming integer
+ir_nonnull_540:
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: p
+    movsxd rax, r12d      ; From register (signed int32)
+    imul rax, r10
+    mov [rbp - 488], rax
+    mov rax, [rbp - 488]
+    mov r10, rax
+    ; Load variable: source
+    mov rax, r14      ; From register
+    add rax, r10
+    mov [rbp - 496], rax
+    mov rax, [rbp - 496]
+    movzx rax, byte [rax]
+    mov [rbp - 504], rax
+    mov rax, 48
+    mov r10, rax
+    mov rax, [rbp - 504]
+    cmp rax, r10
+    jl ir_while_end_538
+    test r14, r14
+    jnz ir_nonnull_542
+ir_trap_null_541:
+    ; IR call: puts (1 args)
+    sub rsp, 32
+    ; String literal (37 bytes)
+    lea rax, [rel Lstr_struct272]  ; Load string struct address
+    mov rcx, rax
+    call puts
+    add rsp, 32
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    ; IR call: exit (1 args)
+    sub rsp, 32
+    mov rax, 1
+    mov rcx, rax
+    call exit
+    add rsp, 32
+    ; Unknown return type - assuming integer
+ir_nonnull_542:
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: p
+    movsxd rax, r12d      ; From register (signed int32)
+    imul rax, r10
+    mov [rbp - 520], rax
+    mov rax, [rbp - 520]
+    mov r10, rax
+    ; Load variable: source
+    mov rax, r14      ; From register
+    add rax, r10
+    mov [rbp - 528], rax
+    mov rax, [rbp - 528]
+    movzx rax, byte [rax]
+    mov [rbp - 536], rax
+    mov rax, 57
+    mov r10, rax
+    mov rax, [rbp - 536]
+    cmp rax, r10
+    jg ir_while_end_538
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: p
+    movsxd rax, r12d      ; From register (signed int32)
+    add rax, r10
+    mov [rbp - 552], rax
+    mov rax, [rbp - 552]
+    ; Store to variable: p
+    mov r12d, eax       ; To register (int32/uint32)
+    jmp ir_while_537
+ir_while_end_538:
+    test r13, r13
+    jnz ir_nonnull_544
+ir_trap_null_543:
+    ; IR call: puts (1 args)
+    sub rsp, 32
+    ; String literal (37 bytes)
+    lea rax, [rel Lstr_struct274]  ; Load string struct address
+    mov rcx, rax
+    call puts
+    add rsp, 32
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    ; IR call: exit (1 args)
+    sub rsp, 32
+    mov rax, 1
+    mov rcx, rax
+    call exit
+    add rsp, 32
+    ; Unknown return type - assuming integer
+ir_nonnull_544:
+    mov rax, 4
+    mov r10, rax
+    mov rax, 0
+    imul rax, r10
+    mov [rbp - 560], rax
+    mov rax, [rbp - 560]
+    mov r10, rax
+    ; Load variable: pos_out
+    mov rax, r13      ; From register
+    add rax, r10
+    mov [rbp - 568], rax
+    ; Load variable: p
+    movsxd rax, r12d      ; From register (signed int32)
+    mov rcx, rax
+    mov rax, [rbp - 568]
+    mov dword [rax], ecx
+    ; Load variable: start
+    movsxd rax, dword [rbp - 76]  ; From stack [rbp - 76]
+    mov r10, rax
+    ; Load variable: p
+    movsxd rax, r12d      ; From register (signed int32)
+    sub rax, r10
+    mov [rbp - 584], rax
+    ; IR call: parse_uint (3 args)
+    ; Load variable: source
+    mov rax, r14      ; From register
+    mov rcx, rax
+    ; Load variable: start
+    movsxd rax, dword [rbp - 76]  ; From stack [rbp - 76]
+    mov rdx, rax
+    mov rax, [rbp - 584]
+    mov r8, rax
+    call parse_uint
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    mov [rbp - 592], rax
+    mov rax, [rbp - 592]
+    mov [rbp - 600], rax
+    cmp qword [rbp - 600], 0
+    jnz ir_errdefer_end_546
+ir_errdefer_ok_545:
+ir_errdefer_end_546:
+    mov rax, [rbp - 592]
+    jmp Lparse_factor_exit
+    jmp ir_if_end_535
+ir_if_next_536:
+ir_if_end_535:
+    test r15, r15
+    jnz ir_nonnull_548
+ir_trap_null_547:
+    ; IR call: puts (1 args)
+    sub rsp, 32
+    ; String literal (37 bytes)
+    lea rax, [rel Lstr_struct276]  ; Load string struct address
+    mov rcx, rax
+    call puts
+    add rsp, 32
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    ; IR call: exit (1 args)
+    sub rsp, 32
+    mov rax, 1
+    mov rcx, rax
+    call exit
+    add rsp, 32
+    ; Unknown return type - assuming integer
+ir_nonnull_548:
+    mov rax, 4
+    mov r10, rax
+    mov rax, 0
+    imul rax, r10
+    mov [rbp - 608], rax
+    mov rax, [rbp - 608]
+    mov r10, rax
+    ; Load variable: ok_out
+    mov rax, r15      ; From register
+    add rax, r10
+    mov [rbp - 616], rax
+    mov rax, 0
+    mov rcx, rax
+    mov rax, [rbp - 616]
+    mov dword [rax], ecx
+    mov rax, 0
+    mov [rbp - 632], rax
+    cmp qword [rbp - 632], 0
+    jnz ir_errdefer_end_550
+ir_errdefer_ok_549:
+ir_errdefer_end_550:
+    mov rax, 0
+    jmp Lparse_factor_exit
+Lparse_factor_exit:
+    mov rbx, [rbp - 64]
+    mov r15, [rbp - 56]
+    mov r14, [rbp - 48]
+    mov r13, [rbp - 40]
+    mov r12, [rbp - 32]
+    ; Function epilogue
+    mov rsp, rbp  ; Restore stack pointer
+    pop rbp         ; Restore old base pointer
+    ret               ; Return to caller
+
+global parse_term
+
+parse_term:
+    push rbp        ; Save old base pointer
+    mov rbp, rsp  ; Set new base pointer
+    sub rsp, 928    ; Allocate 928 bytes on stack (aligned)
+    ; Registering 3 function parameters
+    mov [rbp - 8], rcx  ; Home param 'source'
+    ; Parameter 'source' arrived in register rcx
+    mov [rbp - 16], rdx  ; Home param 'pos_out'
+    ; Parameter 'pos_out' arrived in register rdx
+    mov [rbp - 24], r8  ; Home param 'ok_out'
+    ; Parameter 'ok_out' arrived in register r8
+    mov [rbp - 32], r12
+    mov [rbp - 40], r13
+    mov [rbp - 48], r14
+    mov [rbp - 56], r15
+    mov [rbp - 64], rbx
+    ; Spill GPRs so GC sees register-held roots
+    push rax
+    push rbx
+    push rcx
+    push rdx
+    push rsi
+    push rdi
+    push r8
+    push r9
+    push r10
+    push r11
+    push r12
+    push r13
+    push r14
+    push r15
+    ; Spill XMM registers for conservative root scan
+    sub rsp, 256
+    movdqu [rsp + 0], xmm0
+    movdqu [rsp + 16], xmm1
+    movdqu [rsp + 32], xmm2
+    movdqu [rsp + 48], xmm3
+    movdqu [rsp + 64], xmm4
+    movdqu [rsp + 80], xmm5
+    movdqu [rsp + 96], xmm6
+    movdqu [rsp + 112], xmm7
+    movdqu [rsp + 128], xmm8
+    movdqu [rsp + 144], xmm9
+    movdqu [rsp + 160], xmm10
+    movdqu [rsp + 176], xmm11
+    movdqu [rsp + 192], xmm12
+    movdqu [rsp + 208], xmm13
+    movdqu [rsp + 224], xmm14
+    movdqu [rsp + 240], xmm15
+    sub rsp, 32
+    mov rcx, rsp
+    extern gc_safepoint
+    call gc_safepoint
+    add rsp, 32
+    movdqu xmm0, [rsp + 0]
+    movdqu xmm1, [rsp + 16]
+    movdqu xmm2, [rsp + 32]
+    movdqu xmm3, [rsp + 48]
+    movdqu xmm4, [rsp + 64]
+    movdqu xmm5, [rsp + 80]
+    movdqu xmm6, [rsp + 96]
+    movdqu xmm7, [rsp + 112]
+    movdqu xmm8, [rsp + 128]
+    movdqu xmm9, [rsp + 144]
+    movdqu xmm10, [rsp + 160]
+    movdqu xmm11, [rsp + 176]
+    movdqu xmm12, [rsp + 192]
+    movdqu xmm13, [rsp + 208]
+    movdqu xmm14, [rsp + 224]
+    movdqu xmm15, [rsp + 240]
+    add rsp, 256
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop r11
+    pop r10
+    pop r9
+    pop r8
+    pop rdi
+    pop rsi
+    pop rdx
+    pop rcx
+    pop rbx
+    pop rax
+    ; Load variable: ok_out
+    mov rax, qword [rbp - 24]  ; From stack [rbp - 24]
+    ; Store to variable: ok_out
+    mov r12, rax       ; To register
+    ; Load variable: pos_out
+    mov rax, qword [rbp - 16]  ; From stack [rbp - 16]
+    ; Store to variable: pos_out
+    mov r14, rax       ; To register
+    ; Load variable: source
+    mov rax, qword [rbp - 8]  ; From stack [rbp - 8]
+    ; Store to variable: source
+    mov rbx, rax       ; To register
+ir_entry_551:
+    ; IR call: parse_factor (3 args)
+    ; Load variable: source
+    mov rax, rbx      ; From register
+    mov rcx, rax
+    ; Load variable: pos_out
+    mov rax, r14      ; From register
+    mov rdx, rax
+    ; Load variable: ok_out
+    mov rax, r12      ; From register
+    mov r8, rax
+    call parse_factor
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    mov [rbp - 80], rax
+    mov rax, [rbp - 80]
+    ; Store to variable: lhs
+    mov r13d, eax       ; To register (int32/uint32)
+    test r12, r12
+    jnz ir_nonnull_555
+ir_trap_null_554:
+    ; IR call: puts (1 args)
+    sub rsp, 32
+    ; String literal (37 bytes)
+    lea rax, [rel Lstr_struct278]  ; Load string struct address
+    mov rcx, rax
+    call puts
+    add rsp, 32
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    ; IR call: exit (1 args)
+    sub rsp, 32
+    mov rax, 1
+    mov rcx, rax
+    call exit
+    add rsp, 32
+    ; Unknown return type - assuming integer
+ir_nonnull_555:
+    mov rax, 4
+    mov r10, rax
+    mov rax, 0
+    imul rax, r10
+    mov [rbp - 88], rax
+    mov rax, [rbp - 88]
+    mov r10, rax
+    ; Load variable: ok_out
+    mov rax, r12      ; From register
+    add rax, r10
+    mov [rbp - 96], rax
+    mov rax, [rbp - 96]
+    mov eax, dword [rax]
+    mov [rbp - 104], rax
+    mov rax, 0
+    mov r10, rax
+    mov rax, [rbp - 104]
+    cmp rax, r10
+    jne ir_if_next_553
+    mov rax, 0
+    mov [rbp - 120], rax
+    cmp qword [rbp - 120], 0
+    jnz ir_errdefer_end_557
+ir_errdefer_ok_556:
+ir_errdefer_end_557:
+    mov rax, 0
+    jmp Lparse_term_exit
+    jmp ir_if_end_552
+ir_if_next_553:
+ir_if_end_552:
+ir_while_558:
+    test r14, r14
+    jnz ir_nonnull_561
+ir_trap_null_560:
+    ; IR call: puts (1 args)
+    sub rsp, 32
+    ; String literal (37 bytes)
+    lea rax, [rel Lstr_struct280]  ; Load string struct address
+    mov rcx, rax
+    call puts
+    add rsp, 32
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    ; IR call: exit (1 args)
+    sub rsp, 32
+    mov rax, 1
+    mov rcx, rax
+    call exit
+    add rsp, 32
+    ; Unknown return type - assuming integer
+ir_nonnull_561:
+    mov rax, 4
+    mov r10, rax
+    mov rax, 0
+    imul rax, r10
+    mov [rbp - 128], rax
+    mov rax, [rbp - 128]
+    mov r10, rax
+    ; Load variable: pos_out
+    mov rax, r14      ; From register
+    add rax, r10
+    mov [rbp - 136], rax
+    mov rax, [rbp - 136]
+    mov eax, dword [rax]
+    mov [rbp - 144], rax
+    ; IR call: skip_ws (2 args)
+    ; Load variable: source
+    mov rax, rbx      ; From register
+    mov rcx, rax
+    mov rax, [rbp - 144]
+    mov rdx, rax
+    call skip_ws
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    mov [rbp - 152], rax
+    mov rax, [rbp - 152]
+    ; Store to variable: p
+    mov r15d, eax       ; To register (int32/uint32)
+    test rbx, rbx
+    jnz ir_nonnull_563
+ir_trap_null_562:
+    ; IR call: puts (1 args)
+    sub rsp, 32
+    ; String literal (37 bytes)
+    lea rax, [rel Lstr_struct282]  ; Load string struct address
+    mov rcx, rax
+    call puts
+    add rsp, 32
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    ; IR call: exit (1 args)
+    sub rsp, 32
+    mov rax, 1
+    mov rcx, rax
+    call exit
+    add rsp, 32
+    ; Unknown return type - assuming integer
+ir_nonnull_563:
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: p
+    movsxd rax, r15d      ; From register (signed int32)
+    imul rax, r10
+    mov [rbp - 160], rax
+    mov rax, [rbp - 160]
+    mov r10, rax
+    ; Load variable: source
+    mov rax, rbx      ; From register
+    add rax, r10
+    mov [rbp - 168], rax
+    mov rax, [rbp - 168]
+    movzx rax, byte [rax]
+    mov [rbp - 176], rax
+    mov rax, [rbp - 176]
+    ; Store to variable: op
+    mov dword [rbp - 68], eax  ; To stack [rbp - 68]
+    mov rax, 42
+    mov r10, rax
+    ; Load variable: op
+    movsxd rax, dword [rbp - 68]  ; From stack [rbp - 68]
+    cmp rax, r10
+    je ir_if_next_565
+    mov rax, 47
+    mov r10, rax
+    ; Load variable: op
+    movsxd rax, dword [rbp - 68]  ; From stack [rbp - 68]
+    cmp rax, r10
+    je ir_if_next_565
+    jmp ir_while_end_559
+    jmp ir_if_end_564
+ir_if_next_565:
+ir_if_end_564:
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: p
+    movsxd rax, r15d      ; From register (signed int32)
+    add rax, r10
+    mov [rbp - 200], rax
+    mov rax, [rbp - 200]
+    ; Store to variable: p
+    mov r15d, eax       ; To register (int32/uint32)
+    test r14, r14
+    jnz ir_nonnull_567
+ir_trap_null_566:
+    ; IR call: puts (1 args)
+    sub rsp, 32
+    ; String literal (37 bytes)
+    lea rax, [rel Lstr_struct284]  ; Load string struct address
+    mov rcx, rax
+    call puts
+    add rsp, 32
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    ; IR call: exit (1 args)
+    sub rsp, 32
+    mov rax, 1
+    mov rcx, rax
+    call exit
+    add rsp, 32
+    ; Unknown return type - assuming integer
+ir_nonnull_567:
+    mov rax, 4
+    mov r10, rax
+    mov rax, 0
+    imul rax, r10
+    mov [rbp - 208], rax
+    mov rax, [rbp - 208]
+    mov r10, rax
+    ; Load variable: pos_out
+    mov rax, r14      ; From register
+    add rax, r10
+    mov [rbp - 216], rax
+    ; Load variable: p
+    movsxd rax, r15d      ; From register (signed int32)
+    mov rcx, rax
+    mov rax, [rbp - 216]
+    mov dword [rax], ecx
+    ; IR call: parse_factor (3 args)
+    ; Load variable: source
+    mov rax, rbx      ; From register
+    mov rcx, rax
+    ; Load variable: pos_out
+    mov rax, r14      ; From register
+    mov rdx, rax
+    ; Load variable: ok_out
+    mov rax, r12      ; From register
+    mov r8, rax
+    call parse_factor
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    mov [rbp - 232], rax
+    mov rax, [rbp - 232]
+    ; Store to variable: rhs
+    mov dword [rbp - 72], eax  ; To stack [rbp - 72]
+    test r12, r12
+    jnz ir_nonnull_571
+ir_trap_null_570:
+    ; IR call: puts (1 args)
+    sub rsp, 32
+    ; String literal (37 bytes)
+    lea rax, [rel Lstr_struct286]  ; Load string struct address
+    mov rcx, rax
+    call puts
+    add rsp, 32
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    ; IR call: exit (1 args)
+    sub rsp, 32
+    mov rax, 1
+    mov rcx, rax
+    call exit
+    add rsp, 32
+    ; Unknown return type - assuming integer
+ir_nonnull_571:
+    mov rax, 4
+    mov r10, rax
+    mov rax, 0
+    imul rax, r10
+    mov [rbp - 240], rax
+    mov rax, [rbp - 240]
+    mov r10, rax
+    ; Load variable: ok_out
+    mov rax, r12      ; From register
+    add rax, r10
+    mov [rbp - 248], rax
+    mov rax, [rbp - 248]
+    mov eax, dword [rax]
+    mov [rbp - 256], rax
+    mov rax, 0
+    mov r10, rax
+    mov rax, [rbp - 256]
+    cmp rax, r10
+    jne ir_if_next_569
+    mov rax, 0
+    mov [rbp - 272], rax
+    cmp qword [rbp - 272], 0
+    jnz ir_errdefer_end_573
+ir_errdefer_ok_572:
+ir_errdefer_end_573:
+    mov rax, 0
+    jmp Lparse_term_exit
+    jmp ir_if_end_568
+ir_if_next_569:
+ir_if_end_568:
+    mov rax, 42
+    mov r10, rax
+    ; Load variable: op
+    movsxd rax, dword [rbp - 68]  ; From stack [rbp - 68]
+    cmp rax, r10
+    jne ir_if_next_575
+    ; Load variable: rhs
+    movsxd rax, dword [rbp - 72]  ; From stack [rbp - 72]
+    mov r10, rax
+    ; Load variable: lhs
+    movsxd rax, r13d      ; From register (signed int32)
+    imul rax, r10
+    mov [rbp - 288], rax
+    mov rax, [rbp - 288]
+    ; Store to variable: lhs
+    mov r13d, eax       ; To register (int32/uint32)
+    jmp ir_if_end_574
+ir_if_next_575:
+    mov rax, 0
+    mov r10, rax
+    ; Load variable: rhs
+    movsxd rax, dword [rbp - 72]  ; From stack [rbp - 72]
+    cmp rax, r10
+    jne ir_if_next_577
+    test r12, r12
+    jnz ir_nonnull_579
+ir_trap_null_578:
+    ; IR call: puts (1 args)
+    sub rsp, 32
+    ; String literal (37 bytes)
+    lea rax, [rel Lstr_struct288]  ; Load string struct address
+    mov rcx, rax
+    call puts
+    add rsp, 32
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    ; IR call: exit (1 args)
+    sub rsp, 32
+    mov rax, 1
+    mov rcx, rax
+    call exit
+    add rsp, 32
+    ; Unknown return type - assuming integer
+ir_nonnull_579:
+    mov rax, 4
+    mov r10, rax
+    mov rax, 0
+    imul rax, r10
+    mov [rbp - 304], rax
+    mov rax, [rbp - 304]
+    mov r10, rax
+    ; Load variable: ok_out
+    mov rax, r12      ; From register
+    add rax, r10
+    mov [rbp - 312], rax
+    mov rax, 0
+    mov rcx, rax
+    mov rax, [rbp - 312]
+    mov dword [rax], ecx
+    mov rax, 0
+    mov [rbp - 328], rax
+    cmp qword [rbp - 328], 0
+    jnz ir_errdefer_end_581
+ir_errdefer_ok_580:
+ir_errdefer_end_581:
+    mov rax, 0
+    jmp Lparse_term_exit
+    jmp ir_if_end_576
+ir_if_next_577:
+ir_if_end_576:
+    ; Load variable: rhs
+    movsxd rax, dword [rbp - 72]  ; From stack [rbp - 72]
+    mov r10, rax
+    ; Load variable: lhs
+    movsxd rax, r13d      ; From register (signed int32)
+    cqo
+    idiv r10
+    mov [rbp - 336], rax
+    mov rax, [rbp - 336]
+    ; Store to variable: lhs
+    mov r13d, eax       ; To register (int32/uint32)
+ir_if_end_574:
+    jmp ir_while_558
+ir_while_end_559:
+    ; Load variable: lhs
+    movsxd rax, r13d      ; From register (signed int32)
+    mov [rbp - 344], rax
+    cmp qword [rbp - 344], 0
+    jnz ir_errdefer_end_583
+ir_errdefer_ok_582:
+ir_errdefer_end_583:
+    ; Load variable: lhs
+    movsxd rax, r13d      ; From register (signed int32)
+    jmp Lparse_term_exit
+Lparse_term_exit:
+    mov rbx, [rbp - 64]
+    mov r15, [rbp - 56]
+    mov r14, [rbp - 48]
+    mov r13, [rbp - 40]
+    mov r12, [rbp - 32]
+    ; Function epilogue
+    mov rsp, rbp  ; Restore stack pointer
+    pop rbp         ; Restore old base pointer
+    ret               ; Return to caller
+
+global parse_expression
+
+parse_expression:
+    push rbp        ; Save old base pointer
+    mov rbp, rsp  ; Set new base pointer
+    sub rsp, 816    ; Allocate 816 bytes on stack (aligned)
+    ; Registering 3 function parameters
+    mov [rbp - 8], rcx  ; Home param 'source'
+    ; Parameter 'source' arrived in register rcx
+    mov [rbp - 16], rdx  ; Home param 'pos_out'
+    ; Parameter 'pos_out' arrived in register rdx
+    mov [rbp - 24], r8  ; Home param 'ok_out'
+    ; Parameter 'ok_out' arrived in register r8
+    mov [rbp - 32], r12
+    mov [rbp - 40], r13
+    mov [rbp - 48], r14
+    mov [rbp - 56], r15
+    mov [rbp - 64], rbx
+    ; Spill GPRs so GC sees register-held roots
+    push rax
+    push rbx
+    push rcx
+    push rdx
+    push rsi
+    push rdi
+    push r8
+    push r9
+    push r10
+    push r11
+    push r12
+    push r13
+    push r14
+    push r15
+    ; Spill XMM registers for conservative root scan
+    sub rsp, 256
+    movdqu [rsp + 0], xmm0
+    movdqu [rsp + 16], xmm1
+    movdqu [rsp + 32], xmm2
+    movdqu [rsp + 48], xmm3
+    movdqu [rsp + 64], xmm4
+    movdqu [rsp + 80], xmm5
+    movdqu [rsp + 96], xmm6
+    movdqu [rsp + 112], xmm7
+    movdqu [rsp + 128], xmm8
+    movdqu [rsp + 144], xmm9
+    movdqu [rsp + 160], xmm10
+    movdqu [rsp + 176], xmm11
+    movdqu [rsp + 192], xmm12
+    movdqu [rsp + 208], xmm13
+    movdqu [rsp + 224], xmm14
+    movdqu [rsp + 240], xmm15
+    sub rsp, 32
+    mov rcx, rsp
+    extern gc_safepoint
+    call gc_safepoint
+    add rsp, 32
+    movdqu xmm0, [rsp + 0]
+    movdqu xmm1, [rsp + 16]
+    movdqu xmm2, [rsp + 32]
+    movdqu xmm3, [rsp + 48]
+    movdqu xmm4, [rsp + 64]
+    movdqu xmm5, [rsp + 80]
+    movdqu xmm6, [rsp + 96]
+    movdqu xmm7, [rsp + 112]
+    movdqu xmm8, [rsp + 128]
+    movdqu xmm9, [rsp + 144]
+    movdqu xmm10, [rsp + 160]
+    movdqu xmm11, [rsp + 176]
+    movdqu xmm12, [rsp + 192]
+    movdqu xmm13, [rsp + 208]
+    movdqu xmm14, [rsp + 224]
+    movdqu xmm15, [rsp + 240]
+    add rsp, 256
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop r11
+    pop r10
+    pop r9
+    pop r8
+    pop rdi
+    pop rsi
+    pop rdx
+    pop rcx
+    pop rbx
+    pop rax
+    ; Load variable: pos_out
+    mov rax, qword [rbp - 16]  ; From stack [rbp - 16]
+    ; Store to variable: pos_out
+    mov r13, rax       ; To register
+    ; Load variable: ok_out
+    mov rax, qword [rbp - 24]  ; From stack [rbp - 24]
+    ; Store to variable: ok_out
+    mov r14, rax       ; To register
+    ; Load variable: source
+    mov rax, qword [rbp - 8]  ; From stack [rbp - 8]
+    ; Store to variable: source
+    mov rbx, rax       ; To register
+ir_entry_584:
+    ; IR call: parse_term (3 args)
+    ; Load variable: source
+    mov rax, rbx      ; From register
+    mov rcx, rax
+    ; Load variable: pos_out
+    mov rax, r13      ; From register
+    mov rdx, rax
+    ; Load variable: ok_out
+    mov rax, r14      ; From register
+    mov r8, rax
+    call parse_term
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    mov [rbp - 80], rax
+    mov rax, [rbp - 80]
+    ; Store to variable: lhs
+    mov r12d, eax       ; To register (int32/uint32)
+    test r14, r14
+    jnz ir_nonnull_588
+ir_trap_null_587:
+    ; IR call: puts (1 args)
+    sub rsp, 32
+    ; String literal (37 bytes)
+    lea rax, [rel Lstr_struct290]  ; Load string struct address
+    mov rcx, rax
+    call puts
+    add rsp, 32
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    ; IR call: exit (1 args)
+    sub rsp, 32
+    mov rax, 1
+    mov rcx, rax
+    call exit
+    add rsp, 32
+    ; Unknown return type - assuming integer
+ir_nonnull_588:
+    mov rax, 4
+    mov r10, rax
+    mov rax, 0
+    imul rax, r10
+    mov [rbp - 88], rax
+    mov rax, [rbp - 88]
+    mov r10, rax
+    ; Load variable: ok_out
+    mov rax, r14      ; From register
+    add rax, r10
+    mov [rbp - 96], rax
+    mov rax, [rbp - 96]
+    mov eax, dword [rax]
+    mov [rbp - 104], rax
+    mov rax, 0
+    mov r10, rax
+    mov rax, [rbp - 104]
+    cmp rax, r10
+    jne ir_if_next_586
+    mov rax, 0
+    mov [rbp - 120], rax
+    cmp qword [rbp - 120], 0
+    jnz ir_errdefer_end_590
+ir_errdefer_ok_589:
+ir_errdefer_end_590:
+    mov rax, 0
+    jmp Lparse_expression_exit
+    jmp ir_if_end_585
+ir_if_next_586:
+ir_if_end_585:
+ir_while_591:
+    test r13, r13
+    jnz ir_nonnull_594
+ir_trap_null_593:
+    ; IR call: puts (1 args)
+    sub rsp, 32
+    ; String literal (37 bytes)
+    lea rax, [rel Lstr_struct292]  ; Load string struct address
+    mov rcx, rax
+    call puts
+    add rsp, 32
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    ; IR call: exit (1 args)
+    sub rsp, 32
+    mov rax, 1
+    mov rcx, rax
+    call exit
+    add rsp, 32
+    ; Unknown return type - assuming integer
+ir_nonnull_594:
+    mov rax, 4
+    mov r10, rax
+    mov rax, 0
+    imul rax, r10
+    mov [rbp - 128], rax
+    mov rax, [rbp - 128]
+    mov r10, rax
+    ; Load variable: pos_out
+    mov rax, r13      ; From register
+    add rax, r10
+    mov [rbp - 136], rax
+    mov rax, [rbp - 136]
+    mov eax, dword [rax]
+    mov [rbp - 144], rax
+    ; IR call: skip_ws (2 args)
+    ; Load variable: source
+    mov rax, rbx      ; From register
+    mov rcx, rax
+    mov rax, [rbp - 144]
+    mov rdx, rax
+    call skip_ws
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    mov [rbp - 152], rax
+    mov rax, [rbp - 152]
+    ; Store to variable: p
+    mov r15d, eax       ; To register (int32/uint32)
+    test rbx, rbx
+    jnz ir_nonnull_596
+ir_trap_null_595:
+    ; IR call: puts (1 args)
+    sub rsp, 32
+    ; String literal (37 bytes)
+    lea rax, [rel Lstr_struct294]  ; Load string struct address
+    mov rcx, rax
+    call puts
+    add rsp, 32
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    ; IR call: exit (1 args)
+    sub rsp, 32
+    mov rax, 1
+    mov rcx, rax
+    call exit
+    add rsp, 32
+    ; Unknown return type - assuming integer
+ir_nonnull_596:
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: p
+    movsxd rax, r15d      ; From register (signed int32)
+    imul rax, r10
+    mov [rbp - 160], rax
+    mov rax, [rbp - 160]
+    mov r10, rax
+    ; Load variable: source
+    mov rax, rbx      ; From register
+    add rax, r10
+    mov [rbp - 168], rax
+    mov rax, [rbp - 168]
+    movzx rax, byte [rax]
+    mov [rbp - 176], rax
+    mov rax, [rbp - 176]
+    ; Store to variable: op
+    mov dword [rbp - 68], eax  ; To stack [rbp - 68]
+    mov rax, 43
+    mov r10, rax
+    ; Load variable: op
+    movsxd rax, dword [rbp - 68]  ; From stack [rbp - 68]
+    cmp rax, r10
+    je ir_if_next_598
+    mov rax, 45
+    mov r10, rax
+    ; Load variable: op
+    movsxd rax, dword [rbp - 68]  ; From stack [rbp - 68]
+    cmp rax, r10
+    je ir_if_next_598
+    jmp ir_while_end_592
+    jmp ir_if_end_597
+ir_if_next_598:
+ir_if_end_597:
+    mov rax, 1
+    mov r10, rax
+    ; Load variable: p
+    movsxd rax, r15d      ; From register (signed int32)
+    add rax, r10
+    mov [rbp - 200], rax
+    mov rax, [rbp - 200]
+    ; Store to variable: p
+    mov r15d, eax       ; To register (int32/uint32)
+    test r13, r13
+    jnz ir_nonnull_600
+ir_trap_null_599:
+    ; IR call: puts (1 args)
+    sub rsp, 32
+    ; String literal (37 bytes)
+    lea rax, [rel Lstr_struct296]  ; Load string struct address
+    mov rcx, rax
+    call puts
+    add rsp, 32
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    ; IR call: exit (1 args)
+    sub rsp, 32
+    mov rax, 1
+    mov rcx, rax
+    call exit
+    add rsp, 32
+    ; Unknown return type - assuming integer
+ir_nonnull_600:
+    mov rax, 4
+    mov r10, rax
+    mov rax, 0
+    imul rax, r10
+    mov [rbp - 208], rax
+    mov rax, [rbp - 208]
+    mov r10, rax
+    ; Load variable: pos_out
+    mov rax, r13      ; From register
+    add rax, r10
+    mov [rbp - 216], rax
+    ; Load variable: p
+    movsxd rax, r15d      ; From register (signed int32)
+    mov rcx, rax
+    mov rax, [rbp - 216]
+    mov dword [rax], ecx
+    ; IR call: parse_term (3 args)
+    ; Load variable: source
+    mov rax, rbx      ; From register
+    mov rcx, rax
+    ; Load variable: pos_out
+    mov rax, r13      ; From register
+    mov rdx, rax
+    ; Load variable: ok_out
+    mov rax, r14      ; From register
+    mov r8, rax
+    call parse_term
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    mov [rbp - 232], rax
+    mov rax, [rbp - 232]
+    ; Store to variable: rhs
+    mov dword [rbp - 72], eax  ; To stack [rbp - 72]
+    test r14, r14
+    jnz ir_nonnull_604
+ir_trap_null_603:
+    ; IR call: puts (1 args)
+    sub rsp, 32
+    ; String literal (37 bytes)
+    lea rax, [rel Lstr_struct298]  ; Load string struct address
+    mov rcx, rax
+    call puts
+    add rsp, 32
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    ; IR call: exit (1 args)
+    sub rsp, 32
+    mov rax, 1
+    mov rcx, rax
+    call exit
+    add rsp, 32
+    ; Unknown return type - assuming integer
+ir_nonnull_604:
+    mov rax, 4
+    mov r10, rax
+    mov rax, 0
+    imul rax, r10
+    mov [rbp - 240], rax
+    mov rax, [rbp - 240]
+    mov r10, rax
+    ; Load variable: ok_out
+    mov rax, r14      ; From register
+    add rax, r10
+    mov [rbp - 248], rax
+    mov rax, [rbp - 248]
+    mov eax, dword [rax]
+    mov [rbp - 256], rax
+    mov rax, 0
+    mov r10, rax
+    mov rax, [rbp - 256]
+    cmp rax, r10
+    jne ir_if_next_602
+    mov rax, 0
+    mov [rbp - 272], rax
+    cmp qword [rbp - 272], 0
+    jnz ir_errdefer_end_606
+ir_errdefer_ok_605:
+ir_errdefer_end_606:
+    mov rax, 0
+    jmp Lparse_expression_exit
+    jmp ir_if_end_601
+ir_if_next_602:
+ir_if_end_601:
+    mov rax, 43
+    mov r10, rax
+    ; Load variable: op
+    movsxd rax, dword [rbp - 68]  ; From stack [rbp - 68]
+    cmp rax, r10
+    jne ir_if_next_608
+    ; Load variable: rhs
+    movsxd rax, dword [rbp - 72]  ; From stack [rbp - 72]
+    mov r10, rax
+    ; Load variable: lhs
+    movsxd rax, r12d      ; From register (signed int32)
+    add rax, r10
+    mov [rbp - 288], rax
+    mov rax, [rbp - 288]
+    ; Store to variable: lhs
+    mov r12d, eax       ; To register (int32/uint32)
+    jmp ir_if_end_607
+ir_if_next_608:
+    ; Load variable: rhs
+    movsxd rax, dword [rbp - 72]  ; From stack [rbp - 72]
+    mov r10, rax
+    ; Load variable: lhs
+    movsxd rax, r12d      ; From register (signed int32)
+    sub rax, r10
+    mov [rbp - 296], rax
+    mov rax, [rbp - 296]
+    ; Store to variable: lhs
+    mov r12d, eax       ; To register (int32/uint32)
+ir_if_end_607:
+    jmp ir_while_591
+ir_while_end_592:
+    ; Load variable: lhs
+    movsxd rax, r12d      ; From register (signed int32)
+    mov [rbp - 304], rax
+    cmp qword [rbp - 304], 0
+    jnz ir_errdefer_end_610
+ir_errdefer_ok_609:
+ir_errdefer_end_610:
+    ; Load variable: lhs
+    movsxd rax, r12d      ; From register (signed int32)
+    jmp Lparse_expression_exit
+Lparse_expression_exit:
+    mov rbx, [rbp - 64]
+    mov r15, [rbp - 56]
+    mov r14, [rbp - 48]
+    mov r13, [rbp - 40]
+    mov r12, [rbp - 32]
+    ; Function epilogue
+    mov rsp, rbp  ; Restore stack pointer
+    pop rbp         ; Restore old base pointer
+    ret               ; Return to caller
+
+global try_parse_return_expr
+
+try_parse_return_expr:
+    push rbp        ; Save old base pointer
+    mov rbp, rsp  ; Set new base pointer
+    sub rsp, 1312    ; Allocate 1312 bytes on stack (aligned)
+    ; Registering 2 function parameters
+    mov [rbp - 8], rcx  ; Home param 'source'
+    ; Parameter 'source' arrived in register rcx
+    mov [rbp - 16], rdx  ; Home param 'out_value'
+    ; Parameter 'out_value' arrived in register rdx
+    mov [rbp - 24], r12
+    mov [rbp - 32], r13
+    mov [rbp - 40], r14
     ; Spill GPRs so GC sees register-held roots
     push rax
     push rbx
@@ -6795,18 +8866,18 @@ find_return_number:
     mov rax, qword [rbp - 8]  ; From stack [rbp - 8]
     ; Store to variable: source
     mov r12, rax       ; To register
-ir_entry_473:
+ir_entry_611:
     mov rax, 0
     ; Store to variable: i
-    mov r14d, eax       ; To register (int32/uint32)
-ir_while_474:
+    mov r13d, eax       ; To register (int32/uint32)
+ir_while_612:
     test r12, r12
-    jnz ir_nonnull_477
-ir_trap_null_476:
+    jnz ir_nonnull_615
+ir_trap_null_614:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
-    lea rax, [rel Lstr_struct238]  ; Load string struct address
+    lea rax, [rel Lstr_struct300]  ; Load string struct address
     mov rcx, rax
     call puts
     add rsp, 32
@@ -6819,34 +8890,34 @@ ir_trap_null_476:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_477:
+ir_nonnull_615:
     mov rax, 1
     mov r10, rax
     ; Load variable: i
-    movsxd rax, r14d      ; From register (signed int32)
+    movsxd rax, r13d      ; From register (signed int32)
     imul rax, r10
-    mov [rbp - 48], rax
-    mov rax, [rbp - 48]
-    mov r10, rax
-    ; Load variable: source
-    mov rax, r12      ; From register
-    add rax, r10
     mov [rbp - 56], rax
     mov rax, [rbp - 56]
-    movzx rax, byte [rax]
+    mov r10, rax
+    ; Load variable: source
+    mov rax, r12      ; From register
+    add rax, r10
     mov [rbp - 64], rax
+    mov rax, [rbp - 64]
+    movzx rax, byte [rax]
+    mov [rbp - 72], rax
     mov rax, 0
     mov r10, rax
-    mov rax, [rbp - 64]
+    mov rax, [rbp - 72]
     cmp rax, r10
-    je ir_while_end_475
+    je ir_while_end_613
     test r12, r12
-    jnz ir_nonnull_481
-ir_trap_null_480:
+    jnz ir_nonnull_619
+ir_trap_null_618:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
-    lea rax, [rel Lstr_struct240]  ; Load string struct address
+    lea rax, [rel Lstr_struct302]  ; Load string struct address
     mov rcx, rax
     call puts
     add rsp, 32
@@ -6859,40 +8930,40 @@ ir_trap_null_480:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_481:
+ir_nonnull_619:
     mov rax, 1
     mov r10, rax
     ; Load variable: i
-    movsxd rax, r14d      ; From register (signed int32)
+    movsxd rax, r13d      ; From register (signed int32)
     imul rax, r10
-    mov [rbp - 80], rax
-    mov rax, [rbp - 80]
-    mov r10, rax
-    ; Load variable: source
-    mov rax, r12      ; From register
-    add rax, r10
     mov [rbp - 88], rax
     mov rax, [rbp - 88]
-    movzx rax, byte [rax]
+    mov r10, rax
+    ; Load variable: source
+    mov rax, r12      ; From register
+    add rax, r10
     mov [rbp - 96], rax
+    mov rax, [rbp - 96]
+    movzx rax, byte [rax]
+    mov [rbp - 104], rax
     mov rax, 114
     mov r10, rax
-    mov rax, [rbp - 96]
+    mov rax, [rbp - 104]
     cmp rax, r10
-    jne ir_if_next_479
+    jne ir_if_next_617
     mov rax, 1
     mov r10, rax
     ; Load variable: i
-    movsxd rax, r14d      ; From register (signed int32)
+    movsxd rax, r13d      ; From register (signed int32)
     add rax, r10
-    mov [rbp - 112], rax
+    mov [rbp - 120], rax
     test r12, r12
-    jnz ir_nonnull_485
-ir_trap_null_484:
+    jnz ir_nonnull_623
+ir_trap_null_622:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
-    lea rax, [rel Lstr_struct242]  ; Load string struct address
+    lea rax, [rel Lstr_struct304]  ; Load string struct address
     mov rcx, rax
     call puts
     add rsp, 32
@@ -6905,39 +8976,39 @@ ir_trap_null_484:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_485:
+ir_nonnull_623:
     mov rax, 1
     mov r10, rax
-    mov rax, [rbp - 112]
-    imul rax, r10
-    mov [rbp - 120], rax
     mov rax, [rbp - 120]
+    imul rax, r10
+    mov [rbp - 128], rax
+    mov rax, [rbp - 128]
     mov r10, rax
     ; Load variable: source
     mov rax, r12      ; From register
     add rax, r10
-    mov [rbp - 128], rax
-    mov rax, [rbp - 128]
-    movzx rax, byte [rax]
     mov [rbp - 136], rax
+    mov rax, [rbp - 136]
+    movzx rax, byte [rax]
+    mov [rbp - 144], rax
     mov rax, 101
     mov r10, rax
-    mov rax, [rbp - 136]
+    mov rax, [rbp - 144]
     cmp rax, r10
-    jne ir_if_next_483
+    jne ir_if_next_621
     mov rax, 2
     mov r10, rax
     ; Load variable: i
-    movsxd rax, r14d      ; From register (signed int32)
+    movsxd rax, r13d      ; From register (signed int32)
     add rax, r10
-    mov [rbp - 152], rax
+    mov [rbp - 160], rax
     test r12, r12
-    jnz ir_nonnull_489
-ir_trap_null_488:
+    jnz ir_nonnull_627
+ir_trap_null_626:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
-    lea rax, [rel Lstr_struct244]  ; Load string struct address
+    lea rax, [rel Lstr_struct306]  ; Load string struct address
     mov rcx, rax
     call puts
     add rsp, 32
@@ -6950,39 +9021,39 @@ ir_trap_null_488:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_489:
+ir_nonnull_627:
     mov rax, 1
     mov r10, rax
-    mov rax, [rbp - 152]
-    imul rax, r10
-    mov [rbp - 160], rax
     mov rax, [rbp - 160]
+    imul rax, r10
+    mov [rbp - 168], rax
+    mov rax, [rbp - 168]
     mov r10, rax
     ; Load variable: source
     mov rax, r12      ; From register
     add rax, r10
-    mov [rbp - 168], rax
-    mov rax, [rbp - 168]
-    movzx rax, byte [rax]
     mov [rbp - 176], rax
+    mov rax, [rbp - 176]
+    movzx rax, byte [rax]
+    mov [rbp - 184], rax
     mov rax, 116
     mov r10, rax
-    mov rax, [rbp - 176]
+    mov rax, [rbp - 184]
     cmp rax, r10
-    jne ir_if_next_487
+    jne ir_if_next_625
     mov rax, 3
     mov r10, rax
     ; Load variable: i
-    movsxd rax, r14d      ; From register (signed int32)
+    movsxd rax, r13d      ; From register (signed int32)
     add rax, r10
-    mov [rbp - 192], rax
+    mov [rbp - 200], rax
     test r12, r12
-    jnz ir_nonnull_493
-ir_trap_null_492:
+    jnz ir_nonnull_631
+ir_trap_null_630:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
-    lea rax, [rel Lstr_struct246]  ; Load string struct address
+    lea rax, [rel Lstr_struct308]  ; Load string struct address
     mov rcx, rax
     call puts
     add rsp, 32
@@ -6995,39 +9066,39 @@ ir_trap_null_492:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_493:
+ir_nonnull_631:
     mov rax, 1
     mov r10, rax
-    mov rax, [rbp - 192]
-    imul rax, r10
-    mov [rbp - 200], rax
     mov rax, [rbp - 200]
+    imul rax, r10
+    mov [rbp - 208], rax
+    mov rax, [rbp - 208]
     mov r10, rax
     ; Load variable: source
     mov rax, r12      ; From register
     add rax, r10
-    mov [rbp - 208], rax
-    mov rax, [rbp - 208]
-    movzx rax, byte [rax]
     mov [rbp - 216], rax
+    mov rax, [rbp - 216]
+    movzx rax, byte [rax]
+    mov [rbp - 224], rax
     mov rax, 117
     mov r10, rax
-    mov rax, [rbp - 216]
+    mov rax, [rbp - 224]
     cmp rax, r10
-    jne ir_if_next_491
+    jne ir_if_next_629
     mov rax, 4
     mov r10, rax
     ; Load variable: i
-    movsxd rax, r14d      ; From register (signed int32)
+    movsxd rax, r13d      ; From register (signed int32)
     add rax, r10
-    mov [rbp - 232], rax
+    mov [rbp - 240], rax
     test r12, r12
-    jnz ir_nonnull_497
-ir_trap_null_496:
+    jnz ir_nonnull_635
+ir_trap_null_634:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
-    lea rax, [rel Lstr_struct248]  ; Load string struct address
+    lea rax, [rel Lstr_struct310]  ; Load string struct address
     mov rcx, rax
     call puts
     add rsp, 32
@@ -7040,39 +9111,39 @@ ir_trap_null_496:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_497:
+ir_nonnull_635:
     mov rax, 1
     mov r10, rax
-    mov rax, [rbp - 232]
-    imul rax, r10
-    mov [rbp - 240], rax
     mov rax, [rbp - 240]
+    imul rax, r10
+    mov [rbp - 248], rax
+    mov rax, [rbp - 248]
     mov r10, rax
     ; Load variable: source
     mov rax, r12      ; From register
     add rax, r10
-    mov [rbp - 248], rax
-    mov rax, [rbp - 248]
-    movzx rax, byte [rax]
     mov [rbp - 256], rax
+    mov rax, [rbp - 256]
+    movzx rax, byte [rax]
+    mov [rbp - 264], rax
     mov rax, 114
     mov r10, rax
-    mov rax, [rbp - 256]
+    mov rax, [rbp - 264]
     cmp rax, r10
-    jne ir_if_next_495
+    jne ir_if_next_633
     mov rax, 5
     mov r10, rax
     ; Load variable: i
-    movsxd rax, r14d      ; From register (signed int32)
+    movsxd rax, r13d      ; From register (signed int32)
     add rax, r10
-    mov [rbp - 272], rax
+    mov [rbp - 280], rax
     test r12, r12
-    jnz ir_nonnull_501
-ir_trap_null_500:
+    jnz ir_nonnull_639
+ir_trap_null_638:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
-    lea rax, [rel Lstr_struct250]  ; Load string struct address
+    lea rax, [rel Lstr_struct312]  ; Load string struct address
     mov rcx, rax
     call puts
     add rsp, 32
@@ -7085,125 +9156,112 @@ ir_trap_null_500:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_501:
+ir_nonnull_639:
     mov rax, 1
     mov r10, rax
-    mov rax, [rbp - 272]
-    imul rax, r10
-    mov [rbp - 280], rax
     mov rax, [rbp - 280]
+    imul rax, r10
+    mov [rbp - 288], rax
+    mov rax, [rbp - 288]
     mov r10, rax
     ; Load variable: source
     mov rax, r12      ; From register
     add rax, r10
-    mov [rbp - 288], rax
-    mov rax, [rbp - 288]
-    movzx rax, byte [rax]
     mov [rbp - 296], rax
+    mov rax, [rbp - 296]
+    movzx rax, byte [rax]
+    mov [rbp - 304], rax
     mov rax, 110
     mov r10, rax
-    mov rax, [rbp - 296]
+    mov rax, [rbp - 304]
     cmp rax, r10
-    jne ir_if_next_499
+    jne ir_if_next_637
     mov rax, 6
     mov r10, rax
     ; Load variable: i
-    movsxd rax, r14d      ; From register (signed int32)
-    add rax, r10
-    mov [rbp - 312], rax
-    mov rax, [rbp - 312]
-    ; Store to variable: j
-    mov r13d, eax       ; To register (int32/uint32)
-ir_while_502:
-    test r12, r12
-    jnz ir_nonnull_506
-ir_trap_null_505:
-    ; IR call: puts (1 args)
-    sub rsp, 32
-    ; String literal (37 bytes)
-    lea rax, [rel Lstr_struct252]  ; Load string struct address
-    mov rcx, rax
-    call puts
-    add rsp, 32
-    ; Integer/pointer return value in rax
-    ; 32-bit return value already in eax
-    ; IR call: exit (1 args)
-    sub rsp, 32
-    mov rax, 1
-    mov rcx, rax
-    call exit
-    add rsp, 32
-    ; Unknown return type - assuming integer
-ir_nonnull_506:
-    mov rax, 1
-    mov r10, rax
-    ; Load variable: j
     movsxd rax, r13d      ; From register (signed int32)
-    imul rax, r10
+    add rax, r10
     mov [rbp - 320], rax
     mov rax, [rbp - 320]
-    mov r10, rax
+    ; Store to variable: pos
+    mov dword [rbp - 44], eax  ; To stack [rbp - 44]
+    mov rax, 1
+    ; Store to variable: ok
+    mov dword [rbp - 48], eax  ; To stack [rbp - 48]
+    mov rax, 0
+    ; Store to variable: value
+    mov r14d, eax       ; To register (int32/uint32)
+    ; IR call: skip_ws (2 args)
     ; Load variable: source
     mov rax, r12      ; From register
-    add rax, r10
+    mov rcx, rax
+    ; Load variable: pos
+    movsxd rax, dword [rbp - 44]  ; From stack [rbp - 44]
+    mov rdx, rax
+    call skip_ws
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
     mov [rbp - 328], rax
     mov rax, [rbp - 328]
-    movzx rax, byte [rax]
+    ; Store to variable: pos
+    mov dword [rbp - 44], eax  ; To stack [rbp - 44]
+    lea rax, [rbp - 44]
     mov [rbp - 336], rax
-    mov rax, 32
-    mov r10, rax
-    mov rax, [rbp - 336]
-    cmp rax, r10
-    je ir_cond_done_504
-ir_cond_false_507:
-    test r12, r12
-    jnz ir_nonnull_509
-ir_trap_null_508:
-    ; IR call: puts (1 args)
-    sub rsp, 32
-    ; String literal (37 bytes)
-    lea rax, [rel Lstr_struct254]  ; Load string struct address
-    mov rcx, rax
-    call puts
-    add rsp, 32
-    ; Integer/pointer return value in rax
-    ; 32-bit return value already in eax
-    ; IR call: exit (1 args)
-    sub rsp, 32
-    mov rax, 1
-    mov rcx, rax
-    call exit
-    add rsp, 32
-    ; Unknown return type - assuming integer
-ir_nonnull_509:
-    mov rax, 1
-    mov r10, rax
-    ; Load variable: j
-    movsxd rax, r13d      ; From register (signed int32)
-    imul rax, r10
-    mov [rbp - 352], rax
-    mov rax, [rbp - 352]
-    mov r10, rax
+    lea rax, [rbp - 48]
+    mov [rbp - 344], rax
+    ; IR call: parse_expression (3 args)
     ; Load variable: source
     mov rax, r12      ; From register
-    add rax, r10
-    mov [rbp - 360], rax
-    mov rax, [rbp - 360]
-    movzx rax, byte [rax]
-    mov [rbp - 368], rax
-    mov rax, 9
+    mov rcx, rax
+    mov rax, [rbp - 336]
+    mov rdx, rax
+    mov rax, [rbp - 344]
+    mov r8, rax
+    call parse_expression
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    mov [rbp - 352], rax
+    mov rax, [rbp - 352]
+    ; Store to variable: value
+    mov r14d, eax       ; To register (int32/uint32)
+    mov rax, 0
     mov r10, rax
-    mov rax, [rbp - 368]
+    ; Load variable: ok
+    movsxd rax, dword [rbp - 48]  ; From stack [rbp - 48]
     cmp rax, r10
-    je ir_cond_done_504
-ir_cond_false_510:
+    jne ir_if_next_641
+    mov rax, 0
+    mov [rbp - 368], rax
+    cmp qword [rbp - 368], 0
+    jnz ir_errdefer_end_643
+ir_errdefer_ok_642:
+ir_errdefer_end_643:
+    mov rax, 0
+    jmp Ltry_parse_return_expr_exit
+    jmp ir_if_end_640
+ir_if_next_641:
+ir_if_end_640:
+    ; IR call: skip_ws (2 args)
+    ; Load variable: source
+    mov rax, r12      ; From register
+    mov rcx, rax
+    ; Load variable: pos
+    movsxd rax, dword [rbp - 44]  ; From stack [rbp - 44]
+    mov rdx, rax
+    call skip_ws
+    ; Integer/pointer return value in rax
+    ; 32-bit return value already in eax
+    mov [rbp - 376], rax
+    mov rax, [rbp - 376]
+    ; Store to variable: pos
+    mov dword [rbp - 44], eax  ; To stack [rbp - 44]
     test r12, r12
-    jnz ir_nonnull_512
-ir_trap_null_511:
+    jnz ir_nonnull_647
+ir_trap_null_646:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
-    lea rax, [rel Lstr_struct256]  ; Load string struct address
+    lea rax, [rel Lstr_struct314]  ; Load string struct address
     mov rcx, rax
     call puts
     add rsp, 32
@@ -7216,11 +9274,11 @@ ir_trap_null_511:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_512:
+ir_nonnull_647:
     mov rax, 1
     mov r10, rax
-    ; Load variable: j
-    movsxd rax, r13d      ; From register (signed int32)
+    ; Load variable: pos
+    movsxd rax, dword [rbp - 44]  ; From stack [rbp - 44]
     imul rax, r10
     mov [rbp - 384], rax
     mov rax, [rbp - 384]
@@ -7232,19 +9290,29 @@ ir_nonnull_512:
     mov rax, [rbp - 392]
     movzx rax, byte [rax]
     mov [rbp - 400], rax
-    mov rax, 13
+    mov rax, 59
     mov r10, rax
     mov rax, [rbp - 400]
     cmp rax, r10
-    je ir_cond_done_504
-ir_cond_false_513:
-    test r12, r12
-    jnz ir_nonnull_515
-ir_trap_null_514:
+    je ir_if_next_645
+    mov rax, 0
+    mov [rbp - 416], rax
+    cmp qword [rbp - 416], 0
+    jnz ir_errdefer_end_649
+ir_errdefer_ok_648:
+ir_errdefer_end_649:
+    mov rax, 0
+    jmp Ltry_parse_return_expr_exit
+    jmp ir_if_end_644
+ir_if_next_645:
+ir_if_end_644:
+    cmp qword [rbp - 16], 0
+    jnz ir_nonnull_651
+ir_trap_null_650:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
-    lea rax, [rel Lstr_struct258]  ; Load string struct address
+    lea rax, [rel Lstr_struct316]  ; Load string struct address
     mov rcx, rax
     call puts
     add rsp, 32
@@ -7257,451 +9325,72 @@ ir_trap_null_514:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_515:
-    mov rax, 1
+ir_nonnull_651:
+    mov rax, 4
     mov r10, rax
-    ; Load variable: j
-    movsxd rax, r13d      ; From register (signed int32)
+    mov rax, 0
     imul rax, r10
-    mov [rbp - 416], rax
-    mov rax, [rbp - 416]
-    mov r10, rax
-    ; Load variable: source
-    mov rax, r12      ; From register
-    add rax, r10
     mov [rbp - 424], rax
     mov rax, [rbp - 424]
-    movzx rax, byte [rax]
+    mov r10, rax
+    ; Load variable: out_value
+    mov rax, qword [rbp - 16]  ; From stack [rbp - 16]
+    add rax, r10
     mov [rbp - 432], rax
-    mov rax, 10
-    mov r10, rax
+    ; Load variable: value
+    movsxd rax, r14d      ; From register (signed int32)
+    mov rcx, rax
     mov rax, [rbp - 432]
-    cmp rax, r10
-    jne ir_while_end_503
-ir_cond_done_504:
+    mov dword [rax], ecx
     mov rax, 1
-    mov r10, rax
-    ; Load variable: j
-    movsxd rax, r13d      ; From register (signed int32)
-    add rax, r10
     mov [rbp - 448], rax
-    mov rax, [rbp - 448]
-    ; Store to variable: j
-    mov r13d, eax       ; To register (int32/uint32)
-    jmp ir_while_502
-ir_while_end_503:
-    mov r15d, r13d
-ir_while_516:
-    test r12, r12
-    jnz ir_nonnull_519
-ir_trap_null_518:
-    ; IR call: puts (1 args)
-    sub rsp, 32
-    ; String literal (37 bytes)
-    lea rax, [rel Lstr_struct260]  ; Load string struct address
-    mov rcx, rax
-    call puts
-    add rsp, 32
-    ; Integer/pointer return value in rax
-    ; 32-bit return value already in eax
-    ; IR call: exit (1 args)
-    sub rsp, 32
+    cmp qword [rbp - 448], 0
+    jnz ir_errdefer_end_653
+ir_errdefer_ok_652:
+ir_errdefer_end_653:
     mov rax, 1
-    mov rcx, rax
-    call exit
-    add rsp, 32
-    ; Unknown return type - assuming integer
-ir_nonnull_519:
-    mov rax, 1
-    mov r10, rax
-    ; Load variable: j
-    movsxd rax, r13d      ; From register (signed int32)
-    imul rax, r10
-    mov [rbp - 456], rax
-    mov rax, [rbp - 456]
-    mov r10, rax
-    ; Load variable: source
-    mov rax, r12      ; From register
-    add rax, r10
-    mov [rbp - 464], rax
-    mov rax, [rbp - 464]
-    movzx rax, byte [rax]
-    mov [rbp - 472], rax
-    mov rax, 48
-    mov r10, rax
-    mov rax, [rbp - 472]
-    cmp rax, r10
-    jl ir_while_end_517
-    test r12, r12
-    jnz ir_nonnull_521
-ir_trap_null_520:
-    ; IR call: puts (1 args)
-    sub rsp, 32
-    ; String literal (37 bytes)
-    lea rax, [rel Lstr_struct262]  ; Load string struct address
-    mov rcx, rax
-    call puts
-    add rsp, 32
-    ; Integer/pointer return value in rax
-    ; 32-bit return value already in eax
-    ; IR call: exit (1 args)
-    sub rsp, 32
-    mov rax, 1
-    mov rcx, rax
-    call exit
-    add rsp, 32
-    ; Unknown return type - assuming integer
-ir_nonnull_521:
-    mov rax, 1
-    mov r10, rax
-    ; Load variable: j
-    movsxd rax, r13d      ; From register (signed int32)
-    imul rax, r10
-    mov [rbp - 488], rax
-    mov rax, [rbp - 488]
-    mov r10, rax
-    ; Load variable: source
-    mov rax, r12      ; From register
-    add rax, r10
-    mov [rbp - 496], rax
-    mov rax, [rbp - 496]
-    movzx rax, byte [rax]
-    mov [rbp - 504], rax
-    mov rax, 57
-    mov r10, rax
-    mov rax, [rbp - 504]
-    cmp rax, r10
-    jg ir_while_end_517
-    mov rax, 1
-    mov r10, rax
-    ; Load variable: j
-    movsxd rax, r13d      ; From register (signed int32)
-    add rax, r10
-    mov [rbp - 520], rax
-    mov rax, [rbp - 520]
-    ; Store to variable: j
-    mov r13d, eax       ; To register (int32/uint32)
-    jmp ir_while_516
-ir_while_end_517:
-    cmp r13d, r15d
-    jne ir_if_next_523
-    mov rax, 1
-    neg rax
-    mov [rbp - 536], rax
-    mov rax, [rbp - 536]
-    mov [rbp - 544], rax
-    cmp qword [rbp - 544], 0
-    jnz ir_errdefer_end_525
-ir_errdefer_ok_524:
-ir_errdefer_end_525:
-    mov rax, [rbp - 536]
-    jmp Lfind_return_number_exit
-    jmp ir_if_end_522
-ir_if_next_523:
-ir_if_end_522:
-ir_while_526:
-    test r12, r12
-    jnz ir_nonnull_530
-ir_trap_null_529:
-    ; IR call: puts (1 args)
-    sub rsp, 32
-    ; String literal (37 bytes)
-    lea rax, [rel Lstr_struct264]  ; Load string struct address
-    mov rcx, rax
-    call puts
-    add rsp, 32
-    ; Integer/pointer return value in rax
-    ; 32-bit return value already in eax
-    ; IR call: exit (1 args)
-    sub rsp, 32
-    mov rax, 1
-    mov rcx, rax
-    call exit
-    add rsp, 32
-    ; Unknown return type - assuming integer
-ir_nonnull_530:
-    mov rax, 1
-    mov r10, rax
-    ; Load variable: j
-    movsxd rax, r13d      ; From register (signed int32)
-    imul rax, r10
-    mov [rbp - 552], rax
-    mov rax, [rbp - 552]
-    mov r10, rax
-    ; Load variable: source
-    mov rax, r12      ; From register
-    add rax, r10
-    mov [rbp - 560], rax
-    mov rax, [rbp - 560]
-    movzx rax, byte [rax]
-    mov [rbp - 568], rax
-    mov rax, 32
-    mov r10, rax
-    mov rax, [rbp - 568]
-    cmp rax, r10
-    je ir_cond_done_528
-ir_cond_false_531:
-    test r12, r12
-    jnz ir_nonnull_533
-ir_trap_null_532:
-    ; IR call: puts (1 args)
-    sub rsp, 32
-    ; String literal (37 bytes)
-    lea rax, [rel Lstr_struct266]  ; Load string struct address
-    mov rcx, rax
-    call puts
-    add rsp, 32
-    ; Integer/pointer return value in rax
-    ; 32-bit return value already in eax
-    ; IR call: exit (1 args)
-    sub rsp, 32
-    mov rax, 1
-    mov rcx, rax
-    call exit
-    add rsp, 32
-    ; Unknown return type - assuming integer
-ir_nonnull_533:
-    mov rax, 1
-    mov r10, rax
-    ; Load variable: j
-    movsxd rax, r13d      ; From register (signed int32)
-    imul rax, r10
-    mov [rbp - 584], rax
-    mov rax, [rbp - 584]
-    mov r10, rax
-    ; Load variable: source
-    mov rax, r12      ; From register
-    add rax, r10
-    mov [rbp - 592], rax
-    mov rax, [rbp - 592]
-    movzx rax, byte [rax]
-    mov [rbp - 600], rax
-    mov rax, 9
-    mov r10, rax
-    mov rax, [rbp - 600]
-    cmp rax, r10
-    je ir_cond_done_528
-ir_cond_false_534:
-    test r12, r12
-    jnz ir_nonnull_536
-ir_trap_null_535:
-    ; IR call: puts (1 args)
-    sub rsp, 32
-    ; String literal (37 bytes)
-    lea rax, [rel Lstr_struct268]  ; Load string struct address
-    mov rcx, rax
-    call puts
-    add rsp, 32
-    ; Integer/pointer return value in rax
-    ; 32-bit return value already in eax
-    ; IR call: exit (1 args)
-    sub rsp, 32
-    mov rax, 1
-    mov rcx, rax
-    call exit
-    add rsp, 32
-    ; Unknown return type - assuming integer
-ir_nonnull_536:
-    mov rax, 1
-    mov r10, rax
-    ; Load variable: j
-    movsxd rax, r13d      ; From register (signed int32)
-    imul rax, r10
-    mov [rbp - 616], rax
-    mov rax, [rbp - 616]
-    mov r10, rax
-    ; Load variable: source
-    mov rax, r12      ; From register
-    add rax, r10
-    mov [rbp - 624], rax
-    mov rax, [rbp - 624]
-    movzx rax, byte [rax]
-    mov [rbp - 632], rax
-    mov rax, 13
-    mov r10, rax
-    mov rax, [rbp - 632]
-    cmp rax, r10
-    je ir_cond_done_528
-ir_cond_false_537:
-    test r12, r12
-    jnz ir_nonnull_539
-ir_trap_null_538:
-    ; IR call: puts (1 args)
-    sub rsp, 32
-    ; String literal (37 bytes)
-    lea rax, [rel Lstr_struct270]  ; Load string struct address
-    mov rcx, rax
-    call puts
-    add rsp, 32
-    ; Integer/pointer return value in rax
-    ; 32-bit return value already in eax
-    ; IR call: exit (1 args)
-    sub rsp, 32
-    mov rax, 1
-    mov rcx, rax
-    call exit
-    add rsp, 32
-    ; Unknown return type - assuming integer
-ir_nonnull_539:
-    mov rax, 1
-    mov r10, rax
-    ; Load variable: j
-    movsxd rax, r13d      ; From register (signed int32)
-    imul rax, r10
-    mov [rbp - 648], rax
-    mov rax, [rbp - 648]
-    mov r10, rax
-    ; Load variable: source
-    mov rax, r12      ; From register
-    add rax, r10
-    mov [rbp - 656], rax
-    mov rax, [rbp - 656]
-    movzx rax, byte [rax]
-    mov [rbp - 664], rax
-    mov rax, 10
-    mov r10, rax
-    mov rax, [rbp - 664]
-    cmp rax, r10
-    jne ir_while_end_527
-ir_cond_done_528:
-    mov rax, 1
-    mov r10, rax
-    ; Load variable: j
-    movsxd rax, r13d      ; From register (signed int32)
-    add rax, r10
-    mov [rbp - 680], rax
-    mov rax, [rbp - 680]
-    ; Store to variable: j
-    mov r13d, eax       ; To register (int32/uint32)
-    jmp ir_while_526
-ir_while_end_527:
-    test r12, r12
-    jnz ir_nonnull_543
-ir_trap_null_542:
-    ; IR call: puts (1 args)
-    sub rsp, 32
-    ; String literal (37 bytes)
-    lea rax, [rel Lstr_struct272]  ; Load string struct address
-    mov rcx, rax
-    call puts
-    add rsp, 32
-    ; Integer/pointer return value in rax
-    ; 32-bit return value already in eax
-    ; IR call: exit (1 args)
-    sub rsp, 32
-    mov rax, 1
-    mov rcx, rax
-    call exit
-    add rsp, 32
-    ; Unknown return type - assuming integer
-ir_nonnull_543:
-    mov rax, 1
-    mov r10, rax
-    ; Load variable: j
-    movsxd rax, r13d      ; From register (signed int32)
-    imul rax, r10
-    mov [rbp - 688], rax
-    mov rax, [rbp - 688]
-    mov r10, rax
-    ; Load variable: source
-    mov rax, r12      ; From register
-    add rax, r10
-    mov [rbp - 696], rax
-    mov rax, [rbp - 696]
-    movzx rax, byte [rax]
-    mov [rbp - 704], rax
-    mov rax, 59
-    mov r10, rax
-    mov rax, [rbp - 704]
-    cmp rax, r10
-    je ir_if_next_541
-    mov rax, 1
-    neg rax
-    mov [rbp - 720], rax
-    mov rax, [rbp - 720]
-    mov [rbp - 728], rax
-    cmp qword [rbp - 728], 0
-    jnz ir_errdefer_end_545
-ir_errdefer_ok_544:
-ir_errdefer_end_545:
-    mov rax, [rbp - 720]
-    jmp Lfind_return_number_exit
-    jmp ir_if_end_540
-ir_if_next_541:
-ir_if_end_540:
-    ; Load variable: start
-    movsxd rax, r15d      ; From register (signed int32)
-    mov r10, rax
-    ; Load variable: j
-    movsxd rax, r13d      ; From register (signed int32)
-    sub rax, r10
-    mov [rbp - 736], rax
-    ; IR call: parse_uint (3 args)
-    ; Load variable: source
-    mov rax, r12      ; From register
-    mov rcx, rax
-    ; Load variable: start
-    movsxd rax, r15d      ; From register (signed int32)
-    mov rdx, rax
-    mov rax, [rbp - 736]
-    mov r8, rax
-    call parse_uint
-    ; Integer/pointer return value in rax
-    ; 32-bit return value already in eax
-    mov [rbp - 744], rax
-    mov rax, [rbp - 744]
-    mov [rbp - 752], rax
-    cmp qword [rbp - 752], 0
-    jnz ir_errdefer_end_547
-ir_errdefer_ok_546:
-ir_errdefer_end_547:
-    mov rax, [rbp - 744]
-    jmp Lfind_return_number_exit
-    jmp ir_if_end_498
-ir_if_next_499:
-ir_if_end_498:
-    jmp ir_if_end_494
-ir_if_next_495:
-ir_if_end_494:
-    jmp ir_if_end_490
-ir_if_next_491:
-ir_if_end_490:
-    jmp ir_if_end_486
-ir_if_next_487:
-ir_if_end_486:
-    jmp ir_if_end_482
-ir_if_next_483:
-ir_if_end_482:
-    jmp ir_if_end_478
-ir_if_next_479:
-ir_if_end_478:
+    jmp Ltry_parse_return_expr_exit
+    jmp ir_if_end_636
+ir_if_next_637:
+ir_if_end_636:
+    jmp ir_if_end_632
+ir_if_next_633:
+ir_if_end_632:
+    jmp ir_if_end_628
+ir_if_next_629:
+ir_if_end_628:
+    jmp ir_if_end_624
+ir_if_next_625:
+ir_if_end_624:
+    jmp ir_if_end_620
+ir_if_next_621:
+ir_if_end_620:
+    jmp ir_if_end_616
+ir_if_next_617:
+ir_if_end_616:
     mov rax, 1
     mov r10, rax
     ; Load variable: i
-    movsxd rax, r14d      ; From register (signed int32)
+    movsxd rax, r13d      ; From register (signed int32)
     add rax, r10
-    mov [rbp - 760], rax
-    mov rax, [rbp - 760]
+    mov [rbp - 456], rax
+    mov rax, [rbp - 456]
     ; Store to variable: i
-    mov r14d, eax       ; To register (int32/uint32)
-    jmp ir_while_474
-ir_while_end_475:
-    mov rax, 1
-    neg rax
-    mov [rbp - 768], rax
-    mov rax, [rbp - 768]
-    mov [rbp - 776], rax
-    cmp qword [rbp - 776], 0
-    jnz ir_errdefer_end_549
-ir_errdefer_ok_548:
-ir_errdefer_end_549:
-    mov rax, [rbp - 768]
-    jmp Lfind_return_number_exit
-Lfind_return_number_exit:
-    mov r15, [rbp - 40]
-    mov r14, [rbp - 32]
-    mov r13, [rbp - 24]
-    mov r12, [rbp - 16]
+    mov r13d, eax       ; To register (int32/uint32)
+    jmp ir_while_612
+ir_while_end_613:
+    mov rax, 0
+    mov [rbp - 464], rax
+    cmp qword [rbp - 464], 0
+    jnz ir_errdefer_end_655
+ir_errdefer_ok_654:
+ir_errdefer_end_655:
+    mov rax, 0
+    jmp Ltry_parse_return_expr_exit
+Ltry_parse_return_expr_exit:
+    mov r14, [rbp - 40]
+    mov r13, [rbp - 32]
+    mov r12, [rbp - 24]
     ; Function epilogue
     mov rsp, rbp  ; Restore stack pointer
     pop rbp         ; Restore old base pointer
@@ -7792,7 +9481,7 @@ write_return_masm:
     pop rcx
     pop rbx
     pop rax
-ir_entry_550:
+ir_entry_656:
     mov rax, 0
     mov r10, rax
     ; Load variable: mode_w
@@ -7817,18 +9506,18 @@ ir_entry_550:
     ; Store to variable: f
     mov r12, rax       ; To register
     cmp r12, 0
-    jne ir_if_next_552
+    jne ir_if_next_658
     mov rax, 0
     mov [rbp - 104], rax
     cmp qword [rbp - 104], 0
-    jnz ir_errdefer_end_554
-ir_errdefer_ok_553:
-ir_errdefer_end_554:
+    jnz ir_errdefer_end_660
+ir_errdefer_ok_659:
+ir_errdefer_end_660:
     mov rax, 0
     jmp Lwrite_return_masm_exit
-    jmp ir_if_end_551
-ir_if_next_552:
-ir_if_end_551:
+    jmp ir_if_end_657
+ir_if_next_658:
+ir_if_end_657:
     ; IR call: malloc (1 args)
     sub rsp, 32
     mov rax, 32
@@ -7841,7 +9530,7 @@ ir_if_end_551:
     ; Store to variable: numbuf
     mov r13, rax       ; To register
     cmp r13, 0
-    jne ir_if_next_556
+    jne ir_if_next_662
     ; IR call: fclose (1 args)
     sub rsp, 32
     ; Load variable: f
@@ -7855,14 +9544,14 @@ ir_if_end_551:
     mov rax, 0
     mov [rbp - 136], rax
     cmp qword [rbp - 136], 0
-    jnz ir_errdefer_end_558
-ir_errdefer_ok_557:
-ir_errdefer_end_558:
+    jnz ir_errdefer_end_664
+ir_errdefer_ok_663:
+ir_errdefer_end_664:
     mov rax, 0
     jmp Lwrite_return_masm_exit
-    jmp ir_if_end_555
-ir_if_next_556:
-ir_if_end_555:
+    jmp ir_if_end_661
+ir_if_next_662:
+ir_if_end_661:
     mov rax, 0
     mov r10, rax
     ; Load variable: fmt_dec
@@ -8011,35 +9700,35 @@ ir_if_end_555:
     ; 32-bit return value already in eax
     mov [rbp - 272], rax
     cmp r15, 0
-    jle ir_cond_done_561
-ir_cond_false_562:
+    jle ir_cond_done_667
+ir_cond_false_668:
     cmp rbx, 0
-    jle ir_cond_done_561
-ir_cond_false_563:
+    jle ir_cond_done_667
+ir_cond_false_669:
     mov rax, 0
     mov r10, rax
     ; Load variable: w3
     mov rax, qword [rbp - 64]  ; From stack [rbp - 64]
     cmp rax, r10
-    jg ir_if_next_560
-ir_cond_done_561:
+    jg ir_if_next_666
+ir_cond_done_667:
     mov rax, 0
     mov [rbp - 304], rax
     cmp qword [rbp - 304], 0
-    jnz ir_errdefer_end_565
-ir_errdefer_ok_564:
-ir_errdefer_end_565:
+    jnz ir_errdefer_end_671
+ir_errdefer_ok_670:
+ir_errdefer_end_671:
     mov rax, 0
     jmp Lwrite_return_masm_exit
-    jmp ir_if_end_559
-ir_if_next_560:
-ir_if_end_559:
+    jmp ir_if_end_665
+ir_if_next_666:
+ir_if_end_665:
     mov rax, 1
     mov [rbp - 312], rax
     cmp qword [rbp - 312], 0
-    jnz ir_errdefer_end_567
-ir_errdefer_ok_566:
-ir_errdefer_end_567:
+    jnz ir_errdefer_end_673
+ir_errdefer_ok_672:
+ir_errdefer_end_673:
     mov rax, 1
     jmp Lwrite_return_masm_exit
 Lwrite_return_masm_exit:
@@ -8142,13 +9831,13 @@ main:
     mov rax, qword [rbp - 16]  ; From stack [rbp - 16]
     ; Store to variable: argv
     mov rbx, rax       ; To register
-ir_entry_568:
+ir_entry_674:
     mov rax, 2
     mov r10, rax
     ; Load variable: argc
     movsxd rax, dword [rbp - 8]  ; From stack [rbp - 8]
     cmp rax, r10
-    jge ir_if_next_570
+    jge ir_if_next_676
     mov rax, 0
     mov r10, rax
     ; Load variable: msg_usage
@@ -8170,21 +9859,21 @@ ir_entry_568:
     mov rax, 1
     mov [rbp - 128], rax
     cmp qword [rbp - 128], 0
-    jnz ir_errdefer_end_572
-ir_errdefer_ok_571:
-ir_errdefer_end_572:
+    jnz ir_errdefer_end_678
+ir_errdefer_ok_677:
+ir_errdefer_end_678:
     mov rax, 1
     jmp Lmain_exit
-    jmp ir_if_end_569
-ir_if_next_570:
-ir_if_end_569:
+    jmp ir_if_end_675
+ir_if_next_676:
+ir_if_end_675:
     test rbx, rbx
-    jnz ir_nonnull_574
-ir_trap_null_573:
+    jnz ir_nonnull_680
+ir_trap_null_679:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
-    lea rax, [rel Lstr_struct274]  ; Load string struct address
+    lea rax, [rel Lstr_struct318]  ; Load string struct address
     mov rcx, rax
     call puts
     add rsp, 32
@@ -8197,7 +9886,7 @@ ir_trap_null_573:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_574:
+ir_nonnull_680:
     mov rax, 8
     mov r10, rax
     mov rax, 1
@@ -8230,21 +9919,21 @@ ir_nonnull_574:
     mov rax, 2
     ; Store to variable: i
     mov r12d, eax       ; To register (int32/uint32)
-ir_while_575:
+ir_while_681:
     ; Load variable: argc
     movsxd rax, dword [rbp - 8]  ; From stack [rbp - 8]
     mov r10, rax
     ; Load variable: i
     movsxd rax, r12d      ; From register (signed int32)
     cmp rax, r10
-    jge ir_while_end_576
+    jge ir_while_end_682
     test rbx, rbx
-    jnz ir_nonnull_578
-ir_trap_null_577:
+    jnz ir_nonnull_684
+ir_trap_null_683:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
-    lea rax, [rel Lstr_struct276]  ; Load string struct address
+    lea rax, [rel Lstr_struct320]  ; Load string struct address
     mov rcx, rax
     call puts
     add rsp, 32
@@ -8257,7 +9946,7 @@ ir_trap_null_577:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_578:
+ir_nonnull_684:
     mov rax, 8
     mov r10, rax
     ; Load variable: i
@@ -8277,12 +9966,12 @@ ir_nonnull_578:
     ; Store to variable: arg
     mov r14, rax       ; To register
     test r14, r14
-    jnz ir_nonnull_582
-ir_trap_null_581:
+    jnz ir_nonnull_688
+ir_trap_null_687:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
-    lea rax, [rel Lstr_struct278]  ; Load string struct address
+    lea rax, [rel Lstr_struct322]  ; Load string struct address
     mov rcx, rax
     call puts
     add rsp, 32
@@ -8295,7 +9984,7 @@ ir_trap_null_581:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_582:
+ir_nonnull_688:
     mov rax, 1
     mov r10, rax
     mov rax, 0
@@ -8314,14 +10003,14 @@ ir_nonnull_582:
     mov r10, rax
     mov rax, [rbp - 224]
     cmp rax, r10
-    jne ir_if_next_580
+    jne ir_if_next_686
     test r14, r14
-    jnz ir_nonnull_586
-ir_trap_null_585:
+    jnz ir_nonnull_692
+ir_trap_null_691:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
-    lea rax, [rel Lstr_struct280]  ; Load string struct address
+    lea rax, [rel Lstr_struct324]  ; Load string struct address
     mov rcx, rax
     call puts
     add rsp, 32
@@ -8334,7 +10023,7 @@ ir_trap_null_585:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_586:
+ir_nonnull_692:
     mov rax, 1
     mov r10, rax
     mov rax, 1
@@ -8353,14 +10042,14 @@ ir_nonnull_586:
     mov r10, rax
     mov rax, [rbp - 256]
     cmp rax, r10
-    jne ir_if_next_584
+    jne ir_if_next_690
     test r14, r14
-    jnz ir_nonnull_590
-ir_trap_null_589:
+    jnz ir_nonnull_696
+ir_trap_null_695:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
-    lea rax, [rel Lstr_struct282]  ; Load string struct address
+    lea rax, [rel Lstr_struct326]  ; Load string struct address
     mov rcx, rax
     call puts
     add rsp, 32
@@ -8373,7 +10062,7 @@ ir_trap_null_589:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_590:
+ir_nonnull_696:
     mov rax, 1
     mov r10, rax
     mov rax, 2
@@ -8392,7 +10081,7 @@ ir_nonnull_590:
     mov r10, rax
     mov rax, [rbp - 288]
     cmp rax, r10
-    jne ir_if_next_588
+    jne ir_if_next_694
     mov rax, 1
     mov r10, rax
     ; Load variable: i
@@ -8408,14 +10097,14 @@ ir_nonnull_590:
     ; Load variable: i
     movsxd rax, r12d      ; From register (signed int32)
     cmp rax, r10
-    jge ir_if_next_592
+    jge ir_if_next_698
     test rbx, rbx
-    jnz ir_nonnull_594
-ir_trap_null_593:
+    jnz ir_nonnull_700
+ir_trap_null_699:
     ; IR call: puts (1 args)
     sub rsp, 32
     ; String literal (37 bytes)
-    lea rax, [rel Lstr_struct284]  ; Load string struct address
+    lea rax, [rel Lstr_struct328]  ; Load string struct address
     mov rcx, rax
     call puts
     add rsp, 32
@@ -8428,7 +10117,7 @@ ir_trap_null_593:
     call exit
     add rsp, 32
     ; Unknown return type - assuming integer
-ir_nonnull_594:
+ir_nonnull_700:
     mov rax, 8
     mov r10, rax
     ; Load variable: i
@@ -8447,18 +10136,18 @@ ir_nonnull_594:
     mov rax, [rbp - 336]
     ; Store to variable: output_path
     mov qword [rbp - 72], rax  ; To stack [rbp - 72]
-    jmp ir_if_end_591
-ir_if_next_592:
-ir_if_end_591:
-    jmp ir_if_end_587
-ir_if_next_588:
-ir_if_end_587:
-    jmp ir_if_end_583
-ir_if_next_584:
-ir_if_end_583:
-    jmp ir_if_end_579
-ir_if_next_580:
-ir_if_end_579:
+    jmp ir_if_end_697
+ir_if_next_698:
+ir_if_end_697:
+    jmp ir_if_end_693
+ir_if_next_694:
+ir_if_end_693:
+    jmp ir_if_end_689
+ir_if_next_690:
+ir_if_end_689:
+    jmp ir_if_end_685
+ir_if_next_686:
+ir_if_end_685:
     mov rax, 1
     mov r10, rax
     ; Load variable: i
@@ -8468,8 +10157,8 @@ ir_if_end_579:
     mov rax, [rbp - 344]
     ; Store to variable: i
     mov r12d, eax       ; To register (int32/uint32)
-    jmp ir_while_575
-ir_while_end_576:
+    jmp ir_while_681
+ir_while_end_682:
     ; IR call: read_file (1 args)
     ; Load variable: input_path
     mov rax, qword [rbp - 64]  ; From stack [rbp - 64]
@@ -8481,7 +10170,7 @@ ir_while_end_576:
     ; Store to variable: source
     mov r13, rax       ; To register
     cmp r13, 0
-    jne ir_if_next_596
+    jne ir_if_next_702
     mov rax, 0
     mov r10, rax
     ; Load variable: msg_read_err
@@ -8503,14 +10192,14 @@ ir_while_end_576:
     mov rax, 1
     mov [rbp - 392], rax
     cmp qword [rbp - 392], 0
-    jnz ir_errdefer_end_598
-ir_errdefer_ok_597:
-ir_errdefer_end_598:
+    jnz ir_errdefer_end_704
+ir_errdefer_ok_703:
+ir_errdefer_end_704:
     mov rax, 1
     jmp Lmain_exit
-    jmp ir_if_end_595
-ir_if_next_596:
-ir_if_end_595:
+    jmp ir_if_end_701
+ir_if_next_702:
+ir_if_end_701:
     ; IR call: malloc (1 args)
     sub rsp, 32
     mov rax, 40960
@@ -8523,7 +10212,7 @@ ir_if_end_595:
     ; Store to variable: token_buf
     mov r15, rax       ; To register
     cmp r15, 0
-    jne ir_if_next_600
+    jne ir_if_next_706
     mov rax, 0
     mov r10, rax
     ; Load variable: msg_mem_err
@@ -8554,14 +10243,14 @@ ir_if_end_595:
     mov rax, 1
     mov [rbp - 448], rax
     cmp qword [rbp - 448], 0
-    jnz ir_errdefer_end_602
-ir_errdefer_ok_601:
-ir_errdefer_end_602:
+    jnz ir_errdefer_end_708
+ir_errdefer_ok_707:
+ir_errdefer_end_708:
     mov rax, 1
     jmp Lmain_exit
-    jmp ir_if_end_599
-ir_if_next_600:
-ir_if_end_599:
+    jmp ir_if_end_705
+ir_if_next_706:
+ir_if_end_705:
     ; Load variable: token_buf
     mov rax, r15      ; From register
     mov [rbp - 456], rax
@@ -8585,7 +10274,7 @@ ir_if_end_599:
     ; Load variable: token_count
     movsxd rax, dword [rbp - 76]  ; From stack [rbp - 76]
     cmp rax, r10
-    jge ir_if_next_604
+    jge ir_if_next_710
     mov rax, 0
     mov r10, rax
     ; Load variable: msg_lex_err
@@ -8625,46 +10314,38 @@ ir_if_end_599:
     mov rax, 1
     mov [rbp - 520], rax
     cmp qword [rbp - 520], 0
-    jnz ir_errdefer_end_606
-ir_errdefer_ok_605:
-ir_errdefer_end_606:
+    jnz ir_errdefer_end_712
+ir_errdefer_ok_711:
+ir_errdefer_end_712:
     mov rax, 1
     jmp Lmain_exit
-    jmp ir_if_end_603
-ir_if_next_604:
-ir_if_end_603:
-    ; IR call: find_return_number (1 args)
+    jmp ir_if_end_709
+ir_if_next_710:
+ir_if_end_709:
+    mov rax, 0
+    ; Store to variable: retv
+    mov dword [rbp - 80], eax  ; To stack [rbp - 80]
+    lea rax, [rbp - 80]
+    mov [rbp - 528], rax
+    ; IR call: try_parse_return_expr (2 args)
     ; Load variable: source
     mov rax, r13      ; From register
     mov rcx, rax
-    call find_return_number
+    mov rax, [rbp - 528]
+    mov rdx, rax
+    call try_parse_return_expr
     ; Integer/pointer return value in rax
     ; 32-bit return value already in eax
-    mov [rbp - 528], rax
-    mov rax, [rbp - 528]
-    ; Store to variable: retv
-    mov dword [rbp - 80], eax  ; To stack [rbp - 80]
-    mov rax, 0
+    mov [rbp - 536], rax
+    mov rax, [rbp - 536]
     ; Store to variable: parsed_ok
     mov dword [rbp - 84], eax  ; To stack [rbp - 84]
-    mov rax, 0
-    mov r10, rax
-    ; Load variable: retv
-    movsxd rax, dword [rbp - 80]  ; From stack [rbp - 80]
-    cmp rax, r10
-    jl ir_if_next_608
-    mov rax, 1
-    ; Store to variable: parsed_ok
-    mov dword [rbp - 84], eax  ; To stack [rbp - 84]
-    jmp ir_if_end_607
-ir_if_next_608:
-ir_if_end_607:
     mov rax, 0
     mov r10, rax
     ; Load variable: parsed_ok
     movsxd rax, dword [rbp - 84]  ; From stack [rbp - 84]
     cmp rax, r10
-    jne ir_if_next_610
+    jne ir_if_next_714
     mov rax, 0
     mov r10, rax
     ; Load variable: msg_parse_err
@@ -8722,14 +10403,14 @@ ir_if_end_607:
     mov rax, 1
     mov [rbp - 616], rax
     cmp qword [rbp - 616], 0
-    jnz ir_errdefer_end_612
-ir_errdefer_ok_611:
-ir_errdefer_end_612:
+    jnz ir_errdefer_end_716
+ir_errdefer_ok_715:
+ir_errdefer_end_716:
     mov rax, 1
     jmp Lmain_exit
-    jmp ir_if_end_609
-ir_if_next_610:
-ir_if_end_609:
+    jmp ir_if_end_713
+ir_if_next_714:
+ir_if_end_713:
     ; IR call: write_return_masm (2 args)
     ; Load variable: output_path
     mov rax, qword [rbp - 72]  ; From stack [rbp - 72]
@@ -8767,7 +10448,7 @@ ir_if_end_609:
     ; Load variable: ok
     movsxd rax, dword [rbp - 88]  ; From stack [rbp - 88]
     cmp rax, r10
-    jne ir_if_next_614
+    jne ir_if_next_718
     mov rax, 0
     mov r10, rax
     ; Load variable: msg_write_err
@@ -8789,20 +10470,20 @@ ir_if_end_609:
     mov rax, 1
     mov [rbp - 680], rax
     cmp qword [rbp - 680], 0
-    jnz ir_errdefer_end_616
-ir_errdefer_ok_615:
-ir_errdefer_end_616:
+    jnz ir_errdefer_end_720
+ir_errdefer_ok_719:
+ir_errdefer_end_720:
     mov rax, 1
     jmp Lmain_exit
-    jmp ir_if_end_613
-ir_if_next_614:
-ir_if_end_613:
+    jmp ir_if_end_717
+ir_if_next_718:
+ir_if_end_717:
     mov rax, 0
     mov [rbp - 688], rax
     cmp qword [rbp - 688], 0
-    jnz ir_errdefer_end_618
-ir_errdefer_ok_617:
-ir_errdefer_end_618:
+    jnz ir_errdefer_end_722
+ir_errdefer_ok_721:
+ir_errdefer_end_722:
     mov rax, 0
     jmp Lmain_exit
 Lmain_exit:
@@ -9251,9 +10932,9 @@ Lstr25:
 ; Global variable: msg_syntax (string, 16 bytes)
 msg_syntax:
     dq Lstr26  ; Pointer to string data
-    dq 43  ; String length
+    dq 73  ; String length
 Lstr26:
-    db "Syntax: fn main() -> int { return <int>; }", 10, 0
+    db "Syntax: fn main() -> int { return <expr>; } with + - * / and parentheses", 10, 0
 
 Lstr_chars27:
     db "Fatal error: Null pointer dereference", 0
@@ -10156,5 +11837,159 @@ Lstr_chars283:
     align 8
 Lstr_struct284:
     dq Lstr_chars283
+    dq 37
+
+Lstr_chars285:
+    db "Fatal error: Null pointer dereference", 0
+    align 8
+Lstr_struct286:
+    dq Lstr_chars285
+    dq 37
+
+Lstr_chars287:
+    db "Fatal error: Null pointer dereference", 0
+    align 8
+Lstr_struct288:
+    dq Lstr_chars287
+    dq 37
+
+Lstr_chars289:
+    db "Fatal error: Null pointer dereference", 0
+    align 8
+Lstr_struct290:
+    dq Lstr_chars289
+    dq 37
+
+Lstr_chars291:
+    db "Fatal error: Null pointer dereference", 0
+    align 8
+Lstr_struct292:
+    dq Lstr_chars291
+    dq 37
+
+Lstr_chars293:
+    db "Fatal error: Null pointer dereference", 0
+    align 8
+Lstr_struct294:
+    dq Lstr_chars293
+    dq 37
+
+Lstr_chars295:
+    db "Fatal error: Null pointer dereference", 0
+    align 8
+Lstr_struct296:
+    dq Lstr_chars295
+    dq 37
+
+Lstr_chars297:
+    db "Fatal error: Null pointer dereference", 0
+    align 8
+Lstr_struct298:
+    dq Lstr_chars297
+    dq 37
+
+Lstr_chars299:
+    db "Fatal error: Null pointer dereference", 0
+    align 8
+Lstr_struct300:
+    dq Lstr_chars299
+    dq 37
+
+Lstr_chars301:
+    db "Fatal error: Null pointer dereference", 0
+    align 8
+Lstr_struct302:
+    dq Lstr_chars301
+    dq 37
+
+Lstr_chars303:
+    db "Fatal error: Null pointer dereference", 0
+    align 8
+Lstr_struct304:
+    dq Lstr_chars303
+    dq 37
+
+Lstr_chars305:
+    db "Fatal error: Null pointer dereference", 0
+    align 8
+Lstr_struct306:
+    dq Lstr_chars305
+    dq 37
+
+Lstr_chars307:
+    db "Fatal error: Null pointer dereference", 0
+    align 8
+Lstr_struct308:
+    dq Lstr_chars307
+    dq 37
+
+Lstr_chars309:
+    db "Fatal error: Null pointer dereference", 0
+    align 8
+Lstr_struct310:
+    dq Lstr_chars309
+    dq 37
+
+Lstr_chars311:
+    db "Fatal error: Null pointer dereference", 0
+    align 8
+Lstr_struct312:
+    dq Lstr_chars311
+    dq 37
+
+Lstr_chars313:
+    db "Fatal error: Null pointer dereference", 0
+    align 8
+Lstr_struct314:
+    dq Lstr_chars313
+    dq 37
+
+Lstr_chars315:
+    db "Fatal error: Null pointer dereference", 0
+    align 8
+Lstr_struct316:
+    dq Lstr_chars315
+    dq 37
+
+Lstr_chars317:
+    db "Fatal error: Null pointer dereference", 0
+    align 8
+Lstr_struct318:
+    dq Lstr_chars317
+    dq 37
+
+Lstr_chars319:
+    db "Fatal error: Null pointer dereference", 0
+    align 8
+Lstr_struct320:
+    dq Lstr_chars319
+    dq 37
+
+Lstr_chars321:
+    db "Fatal error: Null pointer dereference", 0
+    align 8
+Lstr_struct322:
+    dq Lstr_chars321
+    dq 37
+
+Lstr_chars323:
+    db "Fatal error: Null pointer dereference", 0
+    align 8
+Lstr_struct324:
+    dq Lstr_chars323
+    dq 37
+
+Lstr_chars325:
+    db "Fatal error: Null pointer dereference", 0
+    align 8
+Lstr_struct326:
+    dq Lstr_chars325
+    dq 37
+
+Lstr_chars327:
+    db "Fatal error: Null pointer dereference", 0
+    align 8
+Lstr_struct328:
+    dq Lstr_chars327
     dq 37
 

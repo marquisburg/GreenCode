@@ -93,6 +93,12 @@ $allCases = @(
     OutputMustMatch = @("function main\(\) -> int32", "return 0;")
   },
   [pscustomobject]@{
+    Name = "expr_arithmetic"
+    Input = "tests\test_expr.gc"
+    ShouldSucceed = $true
+    OutputMustMatch = @("function main\(\) -> int32", "return 17;")
+  },
+  [pscustomobject]@{
     Name = "missing_semicolon"
     Input = "tests\test_return.gc"
     ShouldSucceed = $false

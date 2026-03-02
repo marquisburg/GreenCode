@@ -228,6 +228,10 @@ function lex_all(source: cstring, tokens: Token*, max_count: int32) -> int32 {
       count = count + 1;
       return count;
     }
+    var tok: Token* = &tokens[count];
+    tok->line = line;
+    tok->col = col;
+    tok->start = pos;
     if (source[pos] == 47) {
       if (source[pos + 1] == 47) {
         pos = pos + 2;
@@ -244,11 +248,13 @@ function lex_all(source: cstring, tokens: Token*, max_count: int32) -> int32 {
         }
         continue;
       }
+      tok->type = TOKEN_SLASH;
+      tok->length = 1;
+      pos = pos + 1;
+      col = col + 1;
+      count = count + 1;
+      continue;
     }
-    var tok: Token* = &tokens[count];
-    tok->line = line;
-    tok->col = col;
-    tok->start = pos;
     var c: int32 = source[pos];
     if (c == 40) {
       tok->type = TOKEN_LPAREN;
