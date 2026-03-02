@@ -3,6 +3,7 @@ param(
   [ValidateSet("all", "smoke", "negative")]
   [string]$Suite = "all",
   [switch]$Build,
+  [switch]$SkipAst,
   [switch]$KeepOutputs,
   [switch]$StopOnFail
 )
@@ -79,6 +80,62 @@ function Invoke-Case {
   }
 }
 
+function Invoke-AstSuite {
+  param(
+    [Parameter(Mandatory = $true)] [string]$Root,
+    [Parameter(Mandatory = $true)] [string]$OutDir
+  )
+
+  $methasm = Join-Path $Root "..\bin\methasm.exe"
+  $nasm = "nasm"
+  $gcc = "gcc"
+  $src = Join-Path $Root "tests\ast_selftest.masm"
+  $asm = Join-Path $OutDir "ast_selftest.s"
+  $obj = Join-Path $OutDir "ast_selftest.o"
+  $entryObj = Join-Path $OutDir "masm_entry_ast.o"
+  $gcObj = Join-Path $OutDir "gc_ast.o"
+  $exe = Join-Path $OutDir "ast_selftest.exe"
+
+  if (-not (Test-Path $methasm)) {
+    return [pscustomobject]@{ Passed = $false; Detail = "Missing methasm compiler at '$methasm'" }
+  }
+  if (-not (Test-Path $src)) {
+    return [pscustomobject]@{ Passed = $false; Detail = "Missing AST self-test source '$src'" }
+  }
+
+  & $methasm $src -o $asm 2>&1 | Out-Null
+  if ($LASTEXITCODE -ne 0) {
+    return [pscustomobject]@{ Passed = $false; Detail = "AST self-test MethASM compile failed" }
+  }
+
+  & $nasm -f win64 $asm -o $obj 2>&1 | Out-Null
+  if ($LASTEXITCODE -ne 0) {
+    return [pscustomobject]@{ Passed = $false; Detail = "AST self-test NASM assemble failed" }
+  }
+
+  & $gcc -c (Join-Path $Root "..\src\runtime\masm_entry.c") -o $entryObj 2>&1 | Out-Null
+  if ($LASTEXITCODE -ne 0) {
+    return [pscustomobject]@{ Passed = $false; Detail = "AST self-test masm_entry compile failed" }
+  }
+
+  & $gcc -c (Join-Path $Root "..\src\runtime\gc.c") -o $gcObj 2>&1 | Out-Null
+  if ($LASTEXITCODE -ne 0) {
+    return [pscustomobject]@{ Passed = $false; Detail = "AST self-test GC compile failed" }
+  }
+
+  & $gcc -nostartfiles $obj $entryObj $gcObj -o $exe -lkernel32 -lshell32 2>&1 | Out-Null
+  if ($LASTEXITCODE -ne 0) {
+    return [pscustomobject]@{ Passed = $false; Detail = "AST self-test link failed" }
+  }
+
+  & $exe 2>&1 | Out-Null
+  if ($LASTEXITCODE -ne 0) {
+    return [pscustomobject]@{ Passed = $false; Detail = "AST self-test runtime failed (exit $LASTEXITCODE)" }
+  }
+
+  return [pscustomobject]@{ Passed = $true; Detail = "" }
+}
+
 $allCases = @(
   [pscustomobject]@{
     Name = "simple_valid"
@@ -97,6 +154,54 @@ $allCases = @(
     Input = "tests\test_expr.gc"
     ShouldSucceed = $true
     OutputMustMatch = @("function main\(\) -> int32", "return 17;")
+  },
+  [pscustomobject]@{
+    Name = "expr_precedence"
+    Input = "tests\test_expr_precedence.gc"
+    ShouldSucceed = $true
+    OutputMustMatch = @("function main\(\) -> int32", "return 11;")
+  },
+  [pscustomobject]@{
+    Name = "expr_parentheses"
+    Input = "tests\test_expr_parentheses.gc"
+    ShouldSucceed = $true
+    OutputMustMatch = @("function main\(\) -> int32", "return 14;")
+  },
+  [pscustomobject]@{
+    Name = "expr_unary_chain"
+    Input = "tests\test_expr_unary.gc"
+    ShouldSucceed = $true
+    OutputMustMatch = @("function main\(\) -> int32", "return 2;")
+  },
+  [pscustomobject]@{
+    Name = "expr_left_assoc"
+    Input = "tests\test_expr_left_assoc.gc"
+    ShouldSucceed = $true
+    OutputMustMatch = @("function main\(\) -> int32", "return 12;")
+  },
+  [pscustomobject]@{
+    Name = "expr_whitespace"
+    Input = "tests\test_expr_whitespace.gc"
+    ShouldSucceed = $true
+    OutputMustMatch = @("function main\(\) -> int32", "return 16;")
+  },
+  [pscustomobject]@{
+    Name = "expr_div_zero"
+    Input = "tests\test_expr_div_zero.gc"
+    ShouldSucceed = $false
+    StderrMustMatch = @("Parse/codegen failed")
+  },
+  [pscustomobject]@{
+    Name = "expr_unbalanced"
+    Input = "tests\test_expr_unbalanced.gc"
+    ShouldSucceed = $false
+    StderrMustMatch = @("Parse/codegen failed")
+  },
+  [pscustomobject]@{
+    Name = "expr_trailing_op"
+    Input = "tests\test_expr_trailing_op.gc"
+    ShouldSucceed = $false
+    StderrMustMatch = @("Parse/codegen failed")
   },
   [pscustomobject]@{
     Name = "missing_semicolon"
@@ -181,6 +286,17 @@ foreach ($case in $cases) {
     if ($StopOnFail) {
       break
     }
+  }
+}
+
+if (-not $SkipAst) {
+  $ast = Invoke-AstSuite -Root $scriptRoot -OutDir $outDir
+  if ($ast.Passed) {
+    Write-Host "[PASS] ast_selftest"
+    $pass++
+  } else {
+    Write-Host "[FAIL] ast_selftest :: $($ast.Detail)"
+    $fail++
   }
 }
 

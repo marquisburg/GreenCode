@@ -1,0 +1,354 @@
+// GreenCode AST module
+// Defines AST nodes, constructors, validation, and teardown helpers.
+
+extern function malloc(size: int64) -> cstring = "malloc";
+extern function free(ptr: cstring) -> void = "free";
+extern function memset(dst: cstring, value: int32, size: int64) -> cstring = "memset";
+extern function strlen(s: cstring) -> int64 = "strlen";
+extern function memcpy(dst: cstring, src: cstring, n: int64) -> cstring = "memcpy";
+
+// Node kinds
+var AST_PROGRAM: int32 = 1;
+var AST_FUNCTION_DECL: int32 = 2;
+var AST_RETURN_STMT: int32 = 3;
+var AST_NUMBER_EXPR: int32 = 4;
+var AST_BINARY_EXPR: int32 = 5;
+var AST_UNARY_EXPR: int32 = 6;
+
+// Type kinds
+var AST_TYPE_INT: int32 = 1;
+
+// Binary ops
+var AST_OP_ADD: int32 = 1;
+var AST_OP_SUB: int32 = 2;
+var AST_OP_MUL: int32 = 3;
+var AST_OP_DIV: int32 = 4;
+
+// Unary ops
+var AST_OP_NEG: int32 = 101;
+
+struct ASTNode {
+  kind: int32;
+  line: int32;
+  col: int32;
+  data: cstring;
+  next: cstring;
+}
+
+struct ASTProgramData {
+  first_function: cstring;
+  function_count: int32;
+}
+
+struct ASTFunctionData {
+  name: cstring;
+  return_type: int32;
+  body: cstring;
+}
+
+struct ASTReturnData {
+  expr: cstring;
+}
+
+struct ASTNumberData {
+  value: int32;
+}
+
+struct ASTBinaryData {
+  op: int32;
+  left: cstring;
+  right: cstring;
+}
+
+struct ASTUnaryData {
+  op: int32;
+  operand: cstring;
+}
+
+function ast_alloc_zero(size: int32) -> cstring {
+  var p: cstring = malloc(size);
+  if (p == 0) {
+    return 0;
+  }
+  memset(p, 0, size);
+  return p;
+}
+
+function ast_strdup(s: cstring) -> cstring {
+  if (s == 0) {
+    return 0;
+  }
+  var n: int64 = strlen(s);
+  var out: cstring = malloc(n + 1);
+  if (out == 0) {
+    return 0;
+  }
+  memcpy(out, s, n);
+  out[n] = 0;
+  return out;
+}
+
+function ast_create_node(kind: int32, data: cstring, line: int32, col: int32) -> ASTNode* {
+  var n: ASTNode* = (ASTNode*)ast_alloc_zero(40);
+  if (n == 0) {
+    return 0;
+  }
+  n->kind = kind;
+  n->line = line;
+  n->col = col;
+  n->data = data;
+  n->next = (cstring)0;
+  return n;
+}
+
+function ast_create_program(line: int32, col: int32) -> ASTNode* {
+  var pdata: ASTProgramData* = (ASTProgramData*)ast_alloc_zero(16);
+  if (pdata == 0) {
+    return 0;
+  }
+  return ast_create_node(AST_PROGRAM, (cstring)pdata, line, col);
+}
+
+function ast_create_number(value: int32, line: int32, col: int32) -> ASTNode* {
+  var ndata: ASTNumberData* = (ASTNumberData*)ast_alloc_zero(8);
+  if (ndata == 0) {
+    return 0;
+  }
+  ndata->value = value;
+  return ast_create_node(AST_NUMBER_EXPR, (cstring)ndata, line, col);
+}
+
+function ast_create_unary(op: int32, operand: ASTNode*, line: int32, col: int32) -> ASTNode* {
+  var udata: ASTUnaryData* = (ASTUnaryData*)ast_alloc_zero(16);
+  if (udata == 0) {
+    return 0;
+  }
+  udata->op = op;
+  udata->operand = (cstring)operand;
+  return ast_create_node(AST_UNARY_EXPR, (cstring)udata, line, col);
+}
+
+function ast_create_binary(op: int32, left: ASTNode*, right: ASTNode*, line: int32, col: int32) -> ASTNode* {
+  var bdata: ASTBinaryData* = (ASTBinaryData*)ast_alloc_zero(24);
+  if (bdata == 0) {
+    return 0;
+  }
+  bdata->op = op;
+  bdata->left = (cstring)left;
+  bdata->right = (cstring)right;
+  return ast_create_node(AST_BINARY_EXPR, (cstring)bdata, line, col);
+}
+
+function ast_create_return(expr: ASTNode*, line: int32, col: int32) -> ASTNode* {
+  var rdata: ASTReturnData* = (ASTReturnData*)ast_alloc_zero(8);
+  if (rdata == 0) {
+    return 0;
+  }
+  rdata->expr = (cstring)expr;
+  return ast_create_node(AST_RETURN_STMT, (cstring)rdata, line, col);
+}
+
+function ast_create_function(name: cstring, return_type: int32, body: ASTNode*, line: int32, col: int32) -> ASTNode* {
+  var fdata: ASTFunctionData* = (ASTFunctionData*)ast_alloc_zero(24);
+  if (fdata == 0) {
+    return 0;
+  }
+  fdata->name = ast_strdup(name);
+  if (fdata->name == 0) {
+    free((cstring)fdata);
+    return 0;
+  }
+  fdata->return_type = return_type;
+  fdata->body = (cstring)body;
+  return ast_create_node(AST_FUNCTION_DECL, (cstring)fdata, line, col);
+}
+
+function ast_program_add_function(program: ASTNode*, function_node: ASTNode*) -> int32 {
+  if (program == 0 || function_node == 0) {
+    return 0;
+  }
+  if (program->kind != AST_PROGRAM || function_node->kind != AST_FUNCTION_DECL) {
+    return 0;
+  }
+
+  var pdata: ASTProgramData* = (ASTProgramData*)program->data;
+  if (pdata->first_function == 0) {
+    pdata->first_function = (cstring)function_node;
+  } else {
+    var cur: ASTNode* = (ASTNode*)pdata->first_function;
+    while (cur->next != 0) {
+      cur = (ASTNode*)cur->next;
+    }
+    cur->next = (cstring)function_node;
+  }
+  pdata->function_count = pdata->function_count + 1;
+  return 1;
+}
+
+function ast_validate(node: ASTNode*) -> int32 {
+  if (node == 0) {
+    return 0;
+  }
+
+  if (node->kind == AST_PROGRAM) {
+    var p: ASTProgramData* = (ASTProgramData*)node->data;
+    if (p == 0) {
+      return 0;
+    }
+    var count: int32 = 0;
+    var cur: ASTNode* = (ASTNode*)p->first_function;
+    while (cur != 0) {
+      if (cur->kind != AST_FUNCTION_DECL) {
+        return 0;
+      }
+      if (ast_validate(cur) == 0) {
+        return 0;
+      }
+      count = count + 1;
+      cur = (ASTNode*)cur->next;
+    }
+    if (count != p->function_count) {
+      return 0;
+    }
+    return 1;
+  }
+
+  if (node->kind == AST_FUNCTION_DECL) {
+    var f: ASTFunctionData* = (ASTFunctionData*)node->data;
+    if (f == 0 || f->name == 0 || f->body == 0) {
+      return 0;
+    }
+    if (f->return_type != AST_TYPE_INT) {
+      return 0;
+    }
+    if (((ASTNode*)f->body)->kind != AST_RETURN_STMT) {
+      return 0;
+    }
+    return ast_validate((ASTNode*)f->body);
+  }
+
+  if (node->kind == AST_RETURN_STMT) {
+    var r: ASTReturnData* = (ASTReturnData*)node->data;
+    if (r == 0 || r->expr == 0) {
+      return 0;
+    }
+    return ast_validate((ASTNode*)r->expr);
+  }
+
+  if (node->kind == AST_NUMBER_EXPR) {
+    if (node->data == 0) {
+      return 0;
+    }
+    return 1;
+  }
+
+  if (node->kind == AST_UNARY_EXPR) {
+    var u: ASTUnaryData* = (ASTUnaryData*)node->data;
+    if (u == 0 || u->operand == 0) {
+      return 0;
+    }
+    if (u->op != AST_OP_NEG) {
+      return 0;
+    }
+    return ast_validate((ASTNode*)u->operand);
+  }
+
+  if (node->kind == AST_BINARY_EXPR) {
+    var b: ASTBinaryData* = (ASTBinaryData*)node->data;
+    if (b == 0 || b->left == 0 || b->right == 0) {
+      return 0;
+    }
+    if (b->op < AST_OP_ADD || b->op > AST_OP_DIV) {
+      return 0;
+    }
+    if (ast_validate((ASTNode*)b->left) == 0) {
+      return 0;
+    }
+    if (ast_validate((ASTNode*)b->right) == 0) {
+      return 0;
+    }
+    return 1;
+  }
+
+  return 0;
+}
+
+function ast_destroy(node: ASTNode*) -> void {
+  if (node == 0) {
+    return;
+  }
+
+  if (node->kind == AST_PROGRAM) {
+    var p: ASTProgramData* = (ASTProgramData*)node->data;
+    if (p != 0) {
+      var cur: ASTNode* = (ASTNode*)p->first_function;
+      while (cur != 0) {
+        var next: ASTNode* = (ASTNode*)cur->next;
+        ast_destroy(cur);
+        cur = next;
+      }
+      free((cstring)p);
+    }
+    free((cstring)node);
+    return;
+  }
+
+  if (node->kind == AST_FUNCTION_DECL) {
+    var f: ASTFunctionData* = (ASTFunctionData*)node->data;
+    if (f != 0) {
+      if (f->name != 0) {
+        free(f->name);
+      }
+      if (f->body != 0) {
+        ast_destroy((ASTNode*)f->body);
+      }
+      free((cstring)f);
+    }
+    free((cstring)node);
+    return;
+  }
+
+  if (node->kind == AST_RETURN_STMT) {
+    var r: ASTReturnData* = (ASTReturnData*)node->data;
+    if (r != 0) {
+      if (r->expr != 0) {
+        ast_destroy((ASTNode*)r->expr);
+      }
+      free((cstring)r);
+    }
+    free((cstring)node);
+    return;
+  }
+
+  if (node->kind == AST_BINARY_EXPR) {
+    var b: ASTBinaryData* = (ASTBinaryData*)node->data;
+    if (b != 0) {
+      if (b->left != 0) {
+        ast_destroy((ASTNode*)b->left);
+      }
+      if (b->right != 0) {
+        ast_destroy((ASTNode*)b->right);
+      }
+      free((cstring)b);
+    }
+    free((cstring)node);
+    return;
+  }
+
+  if (node->kind == AST_UNARY_EXPR) {
+    var u: ASTUnaryData* = (ASTUnaryData*)node->data;
+    if (u != 0) {
+      if (u->operand != 0) {
+        ast_destroy((ASTNode*)u->operand);
+      }
+      free((cstring)u);
+    }
+    free((cstring)node);
+    return;
+  }
+
+  if (node->data != 0) {
+    free(node->data);
+  }
+  free((cstring)node);
+}

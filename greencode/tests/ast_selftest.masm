@@ -1,0 +1,50 @@
+import "../ast";
+
+function main() -> int32 {
+  // Build: fn main() -> int { return (2 + 3) * (-4); }
+  var n2: ASTNode* = ast_create_number(2, 1, 1);
+  if (n2 == 0) { return 10; }
+  var n3: ASTNode* = ast_create_number(3, 1, 1);
+  if (n3 == 0) { ast_destroy(n2); return 11; }
+  var add: ASTNode* = ast_create_binary(AST_OP_ADD, n2, n3, 1, 1);
+  if (add == 0) { ast_destroy(n2); ast_destroy(n3); return 12; }
+
+  var n4: ASTNode* = ast_create_number(4, 1, 1);
+  if (n4 == 0) { ast_destroy(add); return 13; }
+  var neg4: ASTNode* = ast_create_unary(AST_OP_NEG, n4, 1, 1);
+  if (neg4 == 0) { ast_destroy(add); ast_destroy(n4); return 14; }
+
+  var mul: ASTNode* = ast_create_binary(AST_OP_MUL, add, neg4, 1, 1);
+  if (mul == 0) { ast_destroy(add); ast_destroy(neg4); return 15; }
+
+  var ret_stmt: ASTNode* = ast_create_return(mul, 1, 1);
+  if (ret_stmt == 0) { ast_destroy(mul); return 16; }
+
+  var fn_main: ASTNode* = ast_create_function("main", AST_TYPE_INT, ret_stmt, 1, 1);
+  if (fn_main == 0) { ast_destroy(ret_stmt); return 17; }
+
+  var program: ASTNode* = ast_create_program(1, 1);
+  if (program == 0) { ast_destroy(fn_main); return 18; }
+
+  if (ast_program_add_function(program, fn_main) == 0) {
+    ast_destroy(program);
+    return 19;
+  }
+
+  if (ast_validate(program) == 0) {
+    ast_destroy(program);
+    return 20;
+  }
+
+  // Corrupt invariants and ensure validator catches it.
+  var pdata: ASTProgramData* = (ASTProgramData*)program->data;
+  pdata->function_count = 7;
+  if (ast_validate(program) != 0) {
+    ast_destroy(program);
+    return 21;
+  }
+  pdata->function_count = 1;
+
+  ast_destroy(program);
+  return 0;
+}
